@@ -1,0 +1,5 @@
+DrissionPage
+opencv-python
+numpy
+pyautogui
+pydantic
