@@ -10,10 +10,6 @@ import requests
 from DrissionPage import ChromiumPage, ChromiumOptions
 from image import image_search
 
-# 跨平台虚拟显示处理
-if sys.platform.startswith('linux'):
-    from pyvirtualdisplay import Display
-
 
 class CrossPlatformBypass:
     def _get_chrome_path(self):
@@ -57,11 +53,6 @@ class CrossPlatformBypass:
         if chrome_path := self._get_chrome_path():
             options.set_browser_path(chrome_path)
 
-        # 启动虚拟显示
-        if sys.platform.startswith('linux'):
-            self.display = Display(visible=0, size=(1920, 1080))
-            self.display.start()
-
         return ChromiumPage(addr_or_opts=options)
 
     def solve_challenge(self, target_images: list[str] | str, timeout=60, x_offset=0, y_offset=0):
@@ -102,10 +93,10 @@ class CrossPlatformBypass:
 
                         x = coords[0][0] + x_offset
                         y = coords[0][1] + y_offset
-                        x_center, y_center = pyautogui.locateCenterOnScreen(target_img)
-                        logging.warning(f'x_center：{x_center}, y_center：{y_center}')
-                        logging.warning(f'鼠标当前坐标：{pyautogui.position()}')
-                        pyautogui.moveTo(x_center - 10, y_center, duration=0.5, tween=pyautogui.easeInElastic)
+                        # x_center, y_center = pyautogui.locateCenterOnScreen(target_img)
+                        # logging.warning(f'x_center：{x_center}, y_center：{y_center}')
+                        # logging.warning(f'鼠标当前坐标：{pyautogui.position()}')
+                        pyautogui.moveTo(x, y, duration=0.5, tween=pyautogui.easeInElastic)
                         time.sleep(1)
                         pyautogui.click()
                         logging.warning(f'鼠标当前坐标：{pyautogui.position()}')
@@ -129,9 +120,9 @@ class CrossPlatformBypass:
         browser = self._setup_browser()
         try:
             browser.get(url)
-            browser.screencast.set_save_path('video')
-            browser.screencast.set_mode.video_mode()
-            browser.screencast.start()
+            # browser.screencast.set_save_path('video')
+            # browser.screencast.set_mode.video_mode()
+            # browser.screencast.start()
             if not self.need_verify(browser):
                 raise Exception(f"无需验证: {browser.json}")
             if self.solve_challenge(target_images, timeout, x_offset, y_offset):
@@ -145,7 +136,7 @@ class CrossPlatformBypass:
                         raise Exception('验证超时')
             raise Exception('未通过验证')
         finally:
-            browser.screencast.stop()
+            # browser.screencast.stop()
             browser.quit()
             if sys.platform.startswith('linux'):
                 self.display.stop()
@@ -191,7 +182,7 @@ if __name__ == '__main__':
         'img/en-light.png'
     ]
     try:
-        user_agent, cookies = bypass.get_cookies(url, target_images, 60, 0, 0)
+        user_agent, cookies = bypass.get_cookies(url, target_images, 60, 10, 10)
         logging.warning(f"获取Cookie成功")
         logging.warning(f"User-Agent: {user_agent}, cookies: {cookies}")
     except Exception as e:
