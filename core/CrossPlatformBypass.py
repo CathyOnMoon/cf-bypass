@@ -137,8 +137,6 @@ class CrossPlatformBypass:
         finally:
             # browser.screencast.stop()
             browser.quit()
-            if sys.platform.startswith('linux'):
-                self.display.stop()
 
     def fetch_proxies(self, quantity: int = 10, session_ttl: int = 120):
         proxy_api = "https://gw.dataimpulse.com:777/api/list"
