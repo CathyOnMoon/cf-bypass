@@ -8,7 +8,7 @@ def image_search(image, target):
     # print("Target shape:", target.shape, "dtype:", target.dtype)
     # 搜图
     res = cv2.matchTemplate(image, target, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.8
+    threshold = 0.5
     loc = np.where(res >= threshold)
     coords = [coord for coord in zip(*loc[::-1])]
 

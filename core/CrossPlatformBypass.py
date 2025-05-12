@@ -87,6 +87,7 @@ class CrossPlatformBypass:
                     if target is None:
                         logging.error(f"读取目标图片({target_img})失败")
                         continue
+
                     coords = image_search(cv2_screenshot, target)
                     if len(coords) > 0:
                         logging.warning(f"找到目标图片({target_img})，坐标: {coords}")
