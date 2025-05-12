@@ -65,6 +65,7 @@ class CrossPlatformBypass:
                     return False
                 # 获取并处理截图
                 screenshot = pyautogui.screenshot()
+                screenshot.save('screenshot.png')
                 cv2_screenshot = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
                 if cv2_screenshot is None:
                     logging.error('转换屏幕截图失败')
