@@ -176,7 +176,7 @@ if __name__ == '__main__':
     url = 'https://gmgn.ai/api/v1/gas_price/sol'
     target_images = [
         'img/zh.png',
-        'img/zh-cn.png',
+        'img/zh-cn.jpg',
         'img/zh-dark.png',
         'img/zh-light.png',
         'img/en-light.png'
