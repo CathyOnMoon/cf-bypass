@@ -80,7 +80,7 @@ class PlaywrightBypass:
                 proxy=proxy,
                 headless=False,
                 args=[
-                    # "--disable-blink-features=AutomationControlled",  # 隐藏自动化标识
+                    "-disable-blink-features=AutomationControlled",  # 隐藏自动化标识
                     "-no-first-run",
                     "-force-color-profile=srgb",
                     "-metrics-recording-only",
@@ -130,6 +130,7 @@ class PlaywrightBypass:
                         page.wait_for_timeout(500)
                 raise Exception('未找到点击坐标')
             finally:
+                time.sleep(60)
                 page.close()
 
 
