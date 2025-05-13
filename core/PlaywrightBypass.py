@@ -102,19 +102,14 @@ class PlaywrightBypass:
             page = context.new_page()
             page.context.clear_cookies()
             page.goto(target_url, timeout=60000)
+            page.wait_for_load_state("load")
             try:
-
                 if not self.need_verify(page.title()):
                     raise Exception(f"无需验证: {page.content()}")
                 if self.solve_challenge(target_images, timeout, x_offset, y_offset):
-                    start_time = time.time()
-                    while True:
-                        if page.is_closed():
-                            raise Exception('页面已关闭')
-                        if not self.need_verify(page.title()):
-                            return user_agent, page.context.cookies()
-                        if time.time() - start_time > 10:
-                            raise Exception('验证超时')
+                    page.wait_for_load_state("load")
+                    if not self.need_verify(page.title()):
+                        return user_agent, page.context.cookies()
                 raise Exception('未通过验证')
             finally:
                 page.close()
