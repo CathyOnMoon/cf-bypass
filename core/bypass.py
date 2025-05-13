@@ -135,14 +135,12 @@ class CrossPlatformBypass:
                 start_time = time.time()
                 while True:
                     if not self.need_verify(browser):
-                        time.sleep(3)
                         return browser.user_agent, browser.cookies()
                     if time.time() - start_time > 10:
                         raise Exception('验证超时')
             raise Exception('未通过验证')
         finally:
             # browser.screencast.stop()
-            time.sleep(60)
             browser.quit()
 
 def format_cookie(driver_cookie):
