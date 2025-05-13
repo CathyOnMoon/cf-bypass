@@ -1,14 +1,16 @@
 import asyncio
 import logging
+
+import requests
 from aiohttp import web
 
-from core.cf_bypass import CloudflareBypass
+from core.cookie_pool import CookiePool
 
 
 class HttpServer:
-    def __init__(self, shutdown_event: asyncio.Event, cf_bypass: CloudflareBypass):
+    def __init__(self, shutdown_event: asyncio.Event):
         self.shutdown_event = shutdown_event
-        self.cf_bypass = cf_bypass
+        self.cookie_pool = CookiePool()
 
     def run(self):
         host = '0.0.0.0'
@@ -18,7 +20,7 @@ class HttpServer:
 
     async def start_server(self, host='0.0.0.0', port=7963):
         app = web.Application()
-        app.router.add_get('/proxy', self.proxy)
+        app.router.add_get('/fetch', self.fetch)
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, host, port)
@@ -26,20 +28,25 @@ class HttpServer:
         await self.shutdown_event.wait()
         logging.warning("http服务已关闭")
 
-    async def proxy(self, request: web.Request):
+    async def fetch(self, request: web.Request):
         url = request.query.get('url')
-        logging.warning(f"收到代理请求：{url}")
         if not url or not url.startswith('http'):
             return web.json_response({
                 'code': 400,
                 'message': 'url参数错误'
             })
-        user_agent, cookie = self.cf_bypass.generate_cookie(url)
-        return web.json_response({
-            'code': 200,
-            'message': 'success',
-            'data': {
-                'user_agent': user_agent,
-                'cookie': cookie
-            }
+
+        cookie = self.cookie_pool.random_cookie()
+        if not cookie:
+            return web.json_response({
+                'code': 500,
+                'message': '获取cookie失败'
+            })
+        proxies = {
+            "http": f"http://{cookie.proxy}",  # HTTP 代理
+            "https": f"http://{cookie.proxy}",  # HTTPS 代理
+        }
+        resp = requests.get(url, cookies=cookie.cookies.as_dict(), proxies=proxies, headers={
+            'User-Agent': cookie.user_agent
         })
+        return web.json_response(resp.json())

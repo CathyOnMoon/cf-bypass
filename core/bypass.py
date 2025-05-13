@@ -6,9 +6,8 @@ import cv2
 import time
 import numpy as np
 import pyautogui
-import requests
 from DrissionPage import ChromiumPage, ChromiumOptions
-from image import image_search
+from core.image import image_search
 
 
 class CrossPlatformBypass:
@@ -29,15 +28,13 @@ class CrossPlatformBypass:
                 return path
         return None
 
-    def _setup_browser(self):
+    def _setup_browser(self, proxy: str | None):
         options = ChromiumOptions().auto_port()
         # options.headless()  # 全平台启用无头模式
         options.no_imgs()
 
         # 设置代理
-        proxies = self.fetch_proxies(10, 120)
-        if len(proxies) > 0:
-            proxy = random.choice(proxies)
+        if proxy is not None:
             proxy_url = f'http://{proxy}'
             options.set_argument(f'--proxy-server={proxy_url}')
             logging.warning(f'使用代理：{proxy_url}')
@@ -65,7 +62,7 @@ class CrossPlatformBypass:
                     return False
                 # 获取并处理截图
                 screenshot = pyautogui.screenshot()
-                screenshot.save('screenshot.png')
+                # screenshot.save('screenshot.png')
                 cv2_screenshot = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
                 if cv2_screenshot is None:
                     logging.error('转换屏幕截图失败')
@@ -100,7 +97,7 @@ class CrossPlatformBypass:
                         pyautogui.moveTo(x, y, duration=0.5, tween=pyautogui.easeInElastic)
                         time.sleep(1)
                         pyautogui.click()
-                        logging.warning(f'鼠标当前坐标：{pyautogui.position()}')
+                        # logging.warning(f'鼠标当前坐标：{pyautogui.position()}')
                         return True
                 time.sleep(1)
             except Exception as e:
@@ -117,8 +114,8 @@ class CrossPlatformBypass:
                 return True
         return False
 
-    def get_cookies(self, url, target_images: list[str] | str, timeout=60, x_offset=0, y_offset=0):
-        browser = self._setup_browser()
+    def get_cookies(self, url, proxy: str | None, target_images: list[str] | str, timeout=60, x_offset=0, y_offset=0):
+        browser = self._setup_browser(proxy)
         try:
             browser.get(url)
             # browser.screencast.set_save_path('video')
@@ -130,44 +127,13 @@ class CrossPlatformBypass:
                 start_time = time.time()
                 while True:
                     if not self.need_verify(browser):
-                        user_agent = browser.user_agent
-                        cookies = '; '.join([f"{c['name']}={c['value']}" for c in browser.cookies()])
-                        return user_agent, cookies
+                        return browser.user_agent, browser.cookies()
                     if time.time() - start_time > 10:
                         raise Exception('验证超时')
             raise Exception('未通过验证')
         finally:
             # browser.screencast.stop()
             browser.quit()
-
-    def fetch_proxies(self, quantity: int = 10, session_ttl: int = 120):
-        proxy_api = "https://gw.dataimpulse.com:777/api/list"
-        params = {
-            'quantity': quantity,
-            'type': 'sticky',
-            'format': 'hostname:port',
-            'session_ttl': session_ttl
-        }
-        auth = ('9c8787b9721426b1c2f0', '922d1b4d1df80825')
-        resp = requests.get(proxy_api, params=params, auth=auth)
-        if resp.status_code != 200:
-            logging.error(f"Failed to get proxy list: {resp.text}")
-            return []
-        proxies = []
-        proxy_list = resp.text.strip().split('\n')
-        for proxy in proxy_list:
-            if not proxy.strip():
-                continue
-            parts = proxy.strip().split(':')
-            if len(parts) != 2:
-                logging.error(f'代理格式错误: {proxy}')
-                continue
-            ip, port = parts
-            if not port.isdigit():
-                logging.error(f'代理端口错误: {proxy}')
-                continue
-            proxies.append(proxy)
-        return proxies
 
 
 if __name__ == '__main__':

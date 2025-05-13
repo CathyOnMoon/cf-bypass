@@ -1,8 +1,6 @@
 import asyncio
 import logging
 import signal
-
-from core.cf_bypass import CloudflareBypass
 from server.server import HttpServer
 
 
@@ -10,11 +8,7 @@ class Application:
     async def run(self):
         shutdown_event = asyncio.Event()
 
-        browser_path = 'C:\Program Files\Google\Chrome\Application'
-
-        cf_bypass = CloudflareBypass(browser_path)
-
-        http_server = HttpServer(shutdown_event, cf_bypass)
+        http_server = HttpServer(shutdown_event)
         http_server.run()
 
         def signal_handler(sig, frame):

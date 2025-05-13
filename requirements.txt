@@ -1,5 +1,7 @@
-DrissionPage
-opencv-python
-numpy
-pyautogui
+DrissionPage~=4.1.0.18
+opencv-python~=4.11.0.86
+numpy~=2.2.5
+pyautogui~=0.9.54
 pydantic
+requests~=2.32.3
+aiohttp~=3.11.10
