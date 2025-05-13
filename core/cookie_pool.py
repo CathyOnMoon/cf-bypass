@@ -76,7 +76,10 @@ class CookiePool:
             'format': 'hostname:port',
             'session_ttl': session_ttl
         }
-        auth = ('9c8787b9721426b1c2f0', '922d1b4d1df80825')
+        auth = aiohttp.BasicAuth(
+            login='9c8787b9721426b1c2f0',
+            password='922d1b4d1df80825'
+        )
         # resp = requests.get(proxy_api, params=params, auth=auth)
         async with aiohttp.ClientSession() as session:
             async with session.get(proxy_api, params=params, auth=auth) as resp:
