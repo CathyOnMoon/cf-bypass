@@ -57,15 +57,6 @@ class HttpServer:
             return web.json_response({
                 'code': 500,
                 'message': 'failed',
-                'proxy': cookie.proxy,
-                'cookie': cookie.cookies.as_str(),
-                '_cookie': cookie.cookies.as_str(),
-                'User-Agent': cookie.user_agent,
                 'resp': resp.text
             }, status=500)
 
-    def format_cookie(self, driver_cookie):
-        requests_cookie = ''
-        for dict in driver_cookie:
-            requests_cookie += f'{dict["name"]}={dict["value"]}; '
-        return requests_cookie
