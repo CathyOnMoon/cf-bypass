@@ -109,6 +109,8 @@ class PlaywrightBypass:
                 if self.solve_challenge(target_images, timeout, x_offset, y_offset):
                     start_time = time.time()
                     while True:
+                        if page.is_closed():
+                            raise Exception('页面已关闭')
                         if not self.need_verify(page.title()):
                             return user_agent, page.context.cookies()
                         if time.time() - start_time > 10:
