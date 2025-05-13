@@ -4,10 +4,9 @@ import cv2
 import time
 import numpy as np
 import pyautogui
-import requests
 from playwright.sync_api import sync_playwright, ProxySettings
 
-from core.image import image_search
+from image import image_search
 
 
 class PlaywrightBypass:
