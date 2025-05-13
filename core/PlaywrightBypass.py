@@ -73,10 +73,28 @@ class PlaywrightBypass:
                 return True
         return False
 
+    def _get_chrome_path(self):
+        paths = {
+            'win32': [
+                r'C:\Program Files\Google\Chrome\Application\chrome.exe',
+                r'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe'
+            ],
+            'linux': [
+                '/usr/bin/google-chrome',
+                '/usr/bin/chromium',
+                '/usr/bin/chromium-browser'
+            ]
+        }
+        for path in paths.get(sys.platform, []):
+            if os.path.exists(path):
+                return path
+        return None
+
     def get_cookies(self, target_url, proxy: ProxySettings | None, target_images: list[str] | str, timeout=60, x_offset=0,
                     y_offset=0):
         with sync_playwright() as p:
             browser = p.chromium.launch(
+                executable_path=self._get_chrome_path(),
                 proxy=proxy,
                 headless=False,
                 args=[
