@@ -37,7 +37,7 @@ class CookiePool:
                 start_time = asyncio.get_event_loop().time()
                 await self.task()
                 elapsed = asyncio.get_event_loop().time() - start_time
-                await asyncio.sleep(max(60 * 10 - elapsed, 0))  # 确保固定间隔
+                await asyncio.sleep(max(60 * 30 - elapsed, 0))  # 确保固定间隔
         except asyncio.CancelledError:
             logging.warning('cookie池已关闭')
 
@@ -68,7 +68,7 @@ class CookiePool:
             except Exception as e:
                 logging.error(f"获取Cookie失败: {str(e)}")
 
-    async def fetch_proxies(self, quantity: int = 10, session_ttl: int = 120):
+    async def fetch_proxies(self, quantity: int = 10, session_ttl: int = 60):
         proxy_api = "https://gw.dataimpulse.com:777/api/list"
         params = {
             'quantity': quantity,
