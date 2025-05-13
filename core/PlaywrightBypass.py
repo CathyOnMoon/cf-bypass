@@ -115,15 +115,16 @@ class PlaywrightBypass:
                     "-disable-gpu",
                 ]
             )
-            user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36"
-            context = browser.new_context(
-                user_agent=user_agent,
-            )
+            # user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36"
+            # context = browser.new_context(
+            #     user_agent=user_agent,
+            # )
             # 创建新页面并跳转
-            page = context.new_page()
+            page = browser.new_page()
             page.context.clear_cookies()
             page.goto(target_url, timeout=60000)
             page.wait_for_load_state("load")
+            user_agent = page.evaluate("() => navigator.userAgent")
             try:
                 if not self.need_verify(page.title()):
                     return user_agent, page.context.cookies()
@@ -174,7 +175,7 @@ if __name__ == '__main__':
         })
         user_agent, cookies = bypass.get_cookies(url, proxy, target_images, 60, 12, 15)
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
-        logging.warning(f"获取Cookie成功: {cookie_str}")
+        logging.warning(f"cookie: {cookie_str}, user_agent: {user_agent}")
         proxies = {
             "http": f"http://{proxy_username}:{proxy_password}@{proxy_host}",
             "https": f"http://{proxy_username}:{proxy_password}@{proxy_host}",
@@ -183,7 +184,11 @@ if __name__ == '__main__':
             'user-agent': user_agent,
             'cookie': cookie_str,
         })
-        logging.warning(f"响应: {resp.text}")
+        if 'Just a moment' in resp.text:
+            logging.warning(f"验证失败")
+        else:
+            logging.warning(f"验证成功: {resp.text}")
+
     except Exception as e:
         logging.error(f"获取Cookie失败: {str(e)}")
     finally:
