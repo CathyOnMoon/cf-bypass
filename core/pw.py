@@ -6,9 +6,9 @@ if __name__ == '__main__':
     with sync_playwright() as p:
         # 启动浏览器，设置代理
         proxy_settings = ProxySettings({
-            "server": "http://superproxy.zenrows.com:1337",  # 代理地址和端口
-            "username": "7Mh7Hyrdx3Hb",
-            "password": "D6D7EKLnhe6gC6T_region-ap"
+            "server": "http://gw.dataimpulse.com:823",  # 代理地址和端口
+            "username": "9c8787b9721426b1c2f0",
+            "password": "922d1b4d1df80825"
         })
         browser = p.chromium.launch(
             proxy=proxy_settings,
