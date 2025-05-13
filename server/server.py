@@ -47,7 +47,8 @@ class HttpServer:
             "https": f"http://{cookie.proxy}",  # HTTPS 代理
         }
         resp = requests.get(url, cookies=cookie.cookies.as_dict(), proxies=proxies, headers={
-            'User-Agent': cookie.user_agent
+            'User-Agent': cookie.user_agent,
+            'cookie': cookie.cookies.as_str(),
         })
         try:
             json_resp = resp.json()
