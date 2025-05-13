@@ -58,7 +58,7 @@ class HttpServer:
                         return web.json_response({
                             'code': 500,
                             'message': str(e),
-                            'resp': resp.text()
+                            'resp': await resp.text()
                         }, status=500)
         except Exception as e:
             return web.json_response({
