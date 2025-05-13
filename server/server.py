@@ -49,4 +49,4 @@ class HttpServer:
         resp = requests.get(url, cookies=cookie.cookies.as_dict(), proxies=proxies, headers={
             'User-Agent': cookie.user_agent
         })
-        return resp.text
+        return resp

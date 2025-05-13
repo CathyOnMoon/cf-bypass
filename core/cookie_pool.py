@@ -39,7 +39,7 @@ class CookiePool:
             logging.warning('cookie池已关闭')
 
     async def task(self):
-        proxies = await self.fetch_proxies()
+        proxies = await self.fetch_proxies(quantity=1)
         if not proxies:
             logging.warning('没有可用的代理')
             return
