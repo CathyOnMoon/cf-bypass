@@ -80,7 +80,7 @@ class PlaywrightBypass:
                 proxy=proxy,
                 headless=False,
                 args=[
-                    "--disable-blink-features=AutomationControlled",  # 隐藏自动化标识
+                    # "--disable-blink-features=AutomationControlled",  # 隐藏自动化标识
                     "-no-first-run",
                     "-force-color-profile=srgb",
                     "-metrics-recording-only",
@@ -148,13 +148,13 @@ if __name__ == '__main__':
     try:
         proxy_host = 'superproxy.zenrows.com:1337'
         proxy_username = '7Mh7Hyrdx3Hb'
-        proxy_password = 'D6D7EKLnhe6gC6T_ttl-1m_session-zWKJH1dLWd4v'
+        proxy_password = 'D6D7EKLnhe6gC6T_ttl-1m_session-gtgegwhr5u46'
         proxy = ProxySettings({
             "server": f"http://{proxy_host}",  # 代理地址和端口
             "username": proxy_username,
             "password": proxy_password
         })
-        user_agent, cookies = bypass.get_cookies(url, proxy, target_images, 60, 10, 10)
+        user_agent, cookies = bypass.get_cookies(url, proxy, target_images, 60, 12, 15)
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
         logging.warning(f"获取Cookie成功: {cookie_str}")
         proxies = {
