@@ -146,7 +146,7 @@ if __name__ == '__main__':
         'img/en-light.png'
     ]
     try:
-        proxy_host = 'http://superproxy.zenrows.com:1337'
+        proxy_host = 'superproxy.zenrows.com:1337'
         proxy_username = '7Mh7Hyrdx3Hb'
         proxy_password = 'D6D7EKLnhe6gC6T_ttl-1m_session-zWKJH1dLWd4v'
         proxy = ProxySettings({
