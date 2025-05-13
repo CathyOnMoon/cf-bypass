@@ -4,6 +4,7 @@ import cv2
 import time
 import numpy as np
 import pyautogui
+import requests
 from playwright.sync_api import sync_playwright, ProxySettings
 
 from image import image_search
@@ -145,18 +146,26 @@ if __name__ == '__main__':
         'img/en-light.png'
     ]
     try:
+        proxy_host = 'http://superproxy.zenrows.com:1337'
+        proxy_username = '7Mh7Hyrdx3Hb'
+        proxy_password = 'D6D7EKLnhe6gC6T_ttl-1m_session-zWKJH1dLWd4v'
         proxy = ProxySettings({
-            "server": "http://gw.dataimpulse.com:823",  # 代理地址和端口
-            "username": "9c8787b9721426b1c2f0",
-            "password": "922d1b4d1df80825"
+            "server": f"http://{proxy_host}",  # 代理地址和端口
+            "username": proxy_username,
+            "password": proxy_password
         })
         user_agent, cookies = bypass.get_cookies(url, proxy, target_images, 60, 10, 10)
-        logging.warning(f"获取Cookie成功: {cookies}")
-        # resp = requests.get(url, headers={
-        #     'user-agent': user_agent,
-        #     'cookie': cookie,
-        # })
-        # logging.warning(f"响应: {resp.text}")
+        cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
+        logging.warning(f"获取Cookie成功: {cookie_str}")
+        proxies = {
+            "http": f"http://{proxy_username}:{proxy_password}@{proxy_host}",
+            "https": f"http://{proxy_username}:{proxy_password}@{proxy_host}",
+        }
+        resp = requests.get(url, proxies=proxies, headers={
+            'user-agent': user_agent,
+            'cookie': cookie_str,
+        })
+        logging.warning(f"响应: {resp.text}")
     except Exception as e:
         logging.error(f"获取Cookie失败: {str(e)}")
     finally:
