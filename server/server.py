@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from urllib.parse import unquote
 
 import aiohttp
 import requests
@@ -36,7 +37,6 @@ class HttpServer:
                 'code': 400,
                 'message': 'url参数错误'
             })
-
         cookie = self.cookie_pool.random_cookie()
         if not cookie:
             return web.json_response({
@@ -48,16 +48,22 @@ class HttpServer:
             'User-Agent': cookie.user_agent,
             'cookie': cookie.cookies.as_str(),
         }
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers, proxy=proxy) as resp:
-                try:
-                    json_resp = await resp.json()
-                    return web.json_response(json_resp)
-                except Exception as e:
-                    return web.json_response({
-                        'code': 500,
-                        'message': 'failed',
-                        'resp': resp.text()
-                    }, status=500)
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(unquote(url), headers=headers, proxy=proxy) as resp:
+                    try:
+                        json_resp = await resp.json()
+                        return web.json_response(json_resp)
+                    except Exception as e:
+                        return web.json_response({
+                            'code': 500,
+                            'message': str(e),
+                            'resp': resp.text()
+                        }, status=500)
+        except Exception as e:
+            return web.json_response({
+                'code': 500,
+                'message': str(e)
+            }, status=500)
 
 
