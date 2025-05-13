@@ -107,10 +107,27 @@ class PlaywrightBypass:
                 if not self.need_verify(page.title()):
                     raise Exception(f"无需验证: {page.content()}")
                 if self.solve_challenge(target_images, timeout, x_offset, y_offset):
-                    page.wait_for_load_state("load")
-                    if not self.need_verify(page.title()):
-                        return user_agent, page.context.cookies()
-                raise Exception('未通过验证')
+                    start_time = time.time()
+                    while True:
+                        if page.is_closed():
+                            raise Exception('页面已关闭')
+
+                        try:
+                            current_title = page.title()
+                        except Exception as e:
+                            # 处理执行上下文错误，等待新页面加载
+                            page.wait_for_load_state("load")
+                            current_title = page.title()
+
+                        if not self.need_verify(current_title):
+                            return user_agent, page.context.cookies()
+
+                        if time.time() - start_time > 10:
+                            raise Exception('验证超时')
+
+                        # 避免过快轮询
+                        page.wait_for_timeout(500)
+                raise Exception('未找到点击坐标')
             finally:
                 page.close()
 
