@@ -49,4 +49,12 @@ class HttpServer:
         resp = requests.get(url, cookies=cookie.cookies.as_dict(), proxies=proxies, headers={
             'User-Agent': cookie.user_agent
         })
-        return resp
+        try:
+            json_resp = resp.json()
+            return web.json_response(json_resp)
+        except Exception as e:
+            return web.json_response({
+                'code': 500,
+                'message': 'failed',
+                'resp': resp.text
+            }, status=500)
