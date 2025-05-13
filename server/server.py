@@ -48,7 +48,7 @@ class HttpServer:
         }
         resp = requests.get(url, proxies=proxies, headers={
             'User-Agent': cookie.user_agent,
-            'cookie': self.format_cookie(cookie.cookies),
+            'cookie': cookie.cookies.as_str(),
         })
         try:
             json_resp = resp.json()
