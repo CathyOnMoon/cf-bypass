@@ -46,9 +46,9 @@ class HttpServer:
             "http": f"http://{cookie.proxy}",  # HTTP 代理
             "https": f"http://{cookie.proxy}",  # HTTPS 代理
         }
-        resp = requests.get(url, cookies=cookie.cookies.as_dict(), proxies=proxies, headers={
+        resp = requests.get(url, proxies=proxies, headers={
             'User-Agent': cookie.user_agent,
-            'cookie': cookie.cookies.as_str(),
+            'cookie': self.format_cookie(cookie.cookies),
         })
         try:
             json_resp = resp.json()
@@ -57,5 +57,15 @@ class HttpServer:
             return web.json_response({
                 'code': 500,
                 'message': 'failed',
+                'proxy': cookie.proxy,
+                'cookie': cookie.cookies.as_str(),
+                '_cookie': self.format_cookie(cookie.cookies),
+                'User-Agent': cookie.user_agent,
                 'resp': resp.text
             }, status=500)
+
+    def format_cookie(self, driver_cookie):
+        requests_cookie = ''
+        for dict in driver_cookie:
+            requests_cookie += f'{dict["name"]}={dict["value"]}; '
+        return requests_cookie
