@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+import aiohttp
 import requests
 from aiohttp import web
 
@@ -35,34 +36,34 @@ class HttpServer:
                 'code': 400,
                 'message': 'url参数错误'
             })
-
         cookie = self.cookie_pool.random_cookie()
         if not cookie:
             return web.json_response({
                 'code': 500,
                 'message': '获取cookie失败'
             })
-        proxies = {
-            "http": f"http://{cookie.proxy}",  # HTTP 代理
-            "https": f"http://{cookie.proxy}",  # HTTPS 代理
-        }
-        resp = requests.get(url, proxies=proxies, headers={
+        headers = {
             'User-Agent': cookie.user_agent,
             'cookie': self.format_cookie(cookie.cookies),
-        })
-        try:
-            json_resp = resp.json()
-            return web.json_response(json_resp)
-        except Exception as e:
-            return web.json_response({
-                'code': 500,
-                'message': 'failed',
-                'proxy': cookie.proxy,
-                'cookie': cookie.cookies.as_str(),
-                '_cookie': self.format_cookie(cookie.cookies),
-                'User-Agent': cookie.user_agent,
-                'resp': resp.text
-            }, status=500)
+        }
+        async with aiohttp.ClientSession() as session:
+          async with session.get(url,headers=headers,
+              proxy=f"http://{cookie.proxy}",
+              timeout=aiohttp.ClientTimeout(total=30)
+          ) as resp:
+            try:
+                json_resp = await resp.json()
+                return web.json_response(json_resp)
+            except Exception as e:
+                return web.json_response({
+                    'code': 500,
+                    'message': 'failed',
+                    'proxy': cookie.proxy,
+                    'cookie': cookie.cookies.as_str(),
+                    '_cookie': self.format_cookie(cookie.cookies),
+                    'User-Agent': cookie.user_agent,
+                    'resp': resp.text
+                }, status=500)
 
     def format_cookie(self, driver_cookie):
         requests_cookie = ''
