@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+import aiohttp
 import requests
 from aiohttp import web
 
@@ -42,21 +43,21 @@ class HttpServer:
                 'code': 500,
                 'message': '获取cookie失败'
             })
-        proxies = {
-            "http": f"http://{cookie.proxy}",  # HTTP 代理
-            "https": f"http://{cookie.proxy}",  # HTTPS 代理
-        }
-        resp = requests.get(url, proxies=proxies, headers={
+        proxy = f"http://{cookie.proxy}"
+        headers = {
             'User-Agent': cookie.user_agent,
             'cookie': cookie.cookies.as_str(),
-        })
-        try:
-            json_resp = resp.json()
-            return web.json_response(json_resp)
-        except Exception as e:
-            return web.json_response({
-                'code': 500,
-                'message': 'failed',
-                'resp': resp.text
-            }, status=500)
+        }
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers, proxy=proxy) as resp:
+                try:
+                    json_resp = await resp.json()
+                    return web.json_response(json_resp)
+                except Exception as e:
+                    return web.json_response({
+                        'code': 500,
+                        'message': 'failed',
+                        'resp': resp.text()
+                    }, status=500)
+
 
