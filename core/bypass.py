@@ -6,6 +6,7 @@ import cv2
 import time
 import numpy as np
 import pyautogui
+import requests
 from DrissionPage import ChromiumPage, ChromiumOptions
 from core.image import image_search
 
@@ -29,9 +30,7 @@ class CrossPlatformBypass:
         return None
 
     def _setup_browser(self, proxy: str | None):
-        options = ChromiumOptions().auto_port()
-        # options.headless()  # 全平台启用无头模式
-        options.no_imgs()
+        options = ChromiumOptions()
 
         # 设置代理
         if proxy is not None:
@@ -39,12 +38,23 @@ class CrossPlatformBypass:
             options.set_argument(f'--proxy-server={proxy_url}')
             logging.warning(f'使用代理：{proxy_url}')
 
-        # 平台特定参数
-        if sys.platform.startswith('linux'):
-            options.set_argument('--no-sandbox')
-            options.set_argument('--disable-dev-shm-usage')
-        elif sys.platform == 'win32':
-            options.set_argument('--disable-gpu-features')
+        args = [
+            "-no-first-run",
+            "-force-color-profile=srgb",
+            "-metrics-recording-only",
+            "-password-store=basic",
+            "-use-mock-keychain",
+            "-export-tagged-pdf",
+            "-no-default-browser-check",
+            "-disable-background-mode",
+            "-enable-features=NetworkService,NetworkServiceInProcess,LoadCryptoTokenExtension,PermuteTLSExtensions",
+            "-disable-features=FlashDeprecationWarning,EnablePasswordsAccountStorage",
+            "-deny-permission-prompts",
+            "-disable-gpu",
+        ]
+
+        for arg in args:
+            options.set_argument(arg)
 
         # 浏览器路径设置
         if chrome_path := self._get_chrome_path():
@@ -116,25 +126,30 @@ class CrossPlatformBypass:
 
     def get_cookies(self, url, proxy: str | None, target_images: list[str] | str, timeout=60, x_offset=0, y_offset=0):
         browser = self._setup_browser(proxy)
+        browser.cookies().clear()
         try:
             browser.get(url)
-            # browser.screencast.set_save_path('video')
-            # browser.screencast.set_mode.video_mode()
-            # browser.screencast.start()
             if not self.need_verify(browser):
                 raise Exception(f"无需验证: {browser.json}")
             if self.solve_challenge(target_images, timeout, x_offset, y_offset):
                 start_time = time.time()
                 while True:
                     if not self.need_verify(browser):
+                        time.sleep(3)
                         return browser.user_agent, browser.cookies()
                     if time.time() - start_time > 10:
                         raise Exception('验证超时')
             raise Exception('未通过验证')
         finally:
             # browser.screencast.stop()
+            time.sleep(60)
             browser.quit()
 
+def format_cookie(driver_cookie):
+    requests_cookie = ''
+    for dict in driver_cookie:
+        requests_cookie += f'{dict["name"]}={dict["value"]}; '
+    return requests_cookie
 
 if __name__ == '__main__':
     # 使用示例
@@ -149,9 +164,16 @@ if __name__ == '__main__':
         'img/en-light.png'
     ]
     try:
-        user_agent, cookies = bypass.get_cookies(url, target_images, 60, 10, 10)
+        user_agent, cookies = bypass.get_cookies(url, None, target_images, 60, 10, 10)
         logging.warning(f"获取Cookie成功")
-        logging.warning(f"User-Agent: {user_agent}, cookies: {cookies}")
+
+        cookie = format_cookie(cookies)
+        logging.warning(f"User-Agent: {user_agent}, cookies: {cookie}")
+        resp = requests.get(url, headers={
+            'user-agent': user_agent,
+            'cookie': cookie,
+        })
+        logging.warning(f"响应: {resp.text}")
     except Exception as e:
         logging.error(f"获取Cookie失败: {str(e)}")
     finally:

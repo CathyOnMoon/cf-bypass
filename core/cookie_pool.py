@@ -44,11 +44,11 @@ class CookiePool:
             logging.warning('没有可用的代理')
             return
         target_images = [
-            'img/zh.png',
-            'img/zh-cn.jpg',
-            'img/zh-dark.png',
-            'img/zh-light.png',
-            'img/en-light.png'
+            'core/img/zh.png',
+            'core/img/zh-cn.jpg',
+            'core/img/zh-dark.png',
+            'core/img/zh-light.png',
+            'core/img/en-light.png'
         ]
         for proxy in proxies:
             try:
