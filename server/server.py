@@ -47,11 +47,11 @@ class HttpServer:
                         'code': 500,
                         'message': 'no cookies'
                     })
-
+                cookie = '; '.join([f'{c["name"]}={c["value"]}' for c in proxy_cookie.cookies])
                 proxy = f"http://{proxy_cookie.proxy}"
                 headers = {
                     'User-Agent': proxy_cookie.user_agent,
-                    'cookie': proxy_cookie.cookies.as_str(),
+                    'cookie': cookie,
                 }
                 async with aiohttp.ClientSession() as session:
                     async with session.get(unquote(url), headers=headers, proxy=proxy) as resp:

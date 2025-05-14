@@ -4,12 +4,13 @@ import random
 import string
 from typing import List
 
-from DrissionPage._functions.cookies import CookiesList
+from patchright.sync_api import Cookie
+
 from core.PlaywrightBypass import PlaywrightBypass
 
 
 class ProxyCookie:
-    def __init__(self, proxy: str, user_agent: str, cookies: CookiesList):
+    def __init__(self, proxy: str, user_agent: str, cookies: List[Cookie]):
         self.proxy = proxy
         self.user_agent = user_agent
         self.cookies = cookies
