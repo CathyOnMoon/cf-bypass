@@ -35,7 +35,7 @@ class CookiePool:
             logging.warning('cookie池已关闭')
 
     async def generate_cookies(self):
-        max_cookie_number = 10
+        max_cookie_number = 1
         if len(self.cookie_list) >= max_cookie_number:
             return
         self.running = True

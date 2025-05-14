@@ -53,13 +53,13 @@ class HttpServer:
                     'cookie': cookie,
                 }
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(url, headers=headers, proxy=proxy_cookie.proxy) as resp:
-                        if resp.status == 200:
-                            resp_content = await resp.text()
-                            if 'Just a moment' in resp_content:
-                                self.cookie_pool.remove_cookie(proxy_cookie)
-                                continue
-                            return web.Response(text=resp_content, headers=resp.headers)
+                    async with session.get(url, headers=headers, proxy=proxy_cookie.proxy, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                        resp_content = await resp.text()
+                        logging.info(f'resp_content: {resp_content}')
+                        if 'Just a moment' in resp_content:
+                            self.cookie_pool.remove_cookie(proxy_cookie)
+                            continue
+                        return web.Response(text=resp_content, headers=resp.headers)
             raise Exception("Failed to bypass Cloudflare protection after maximum retries")
         except Exception as e:
             return web.json_response({
