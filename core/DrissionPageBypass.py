@@ -155,10 +155,17 @@ if __name__ == '__main__':
         'img/en-light.png'
     ]
     try:
-        user_agent, cookies = bypass.get_cookies(url, None, target_images, 60, 10, 10)
+        proxy_host = 'superproxy.zenrows.com:1337'
+        proxy_username = '7Mh7Hyrdx3Hb'
+        proxy_password = 'D6D7EKLnhe6gC6T'
+        proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
+        user_agent, cookies = bypass.get_cookies(url, proxy, target_images, 60, 10, 10)
         logging.warning(f"获取Cookie成功")
         logging.warning(f"User-Agent: {user_agent}, cookies: {cookies.as_str()}")
-        resp = requests.get(url, headers={
+        resp = requests.get(url, proxies={
+            'http': proxy,
+            'https': proxy,
+        }, headers={
             'user-agent': user_agent,
             'cookie': cookies.as_str(),
         })
