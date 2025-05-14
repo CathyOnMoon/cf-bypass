@@ -11,7 +11,7 @@ from DrissionPage import ChromiumPage, ChromiumOptions
 from core.image import image_search
 
 
-class CrossPlatformBypass:
+class DrissionPageBypass:
     def _get_chrome_path(self):
         paths = {
             'win32': [
@@ -130,28 +130,21 @@ class CrossPlatformBypass:
         try:
             browser.get(url)
             if not self.need_verify(browser):
-                raise Exception(f"无需验证: {browser.json}")
-            if self.solve_challenge(target_images, timeout, x_offset, y_offset):
-                start_time = time.time()
-                while True:
-                    if not self.need_verify(browser):
-                        return browser.user_agent, browser.cookies()
-                    if time.time() - start_time > 10:
-                        raise Exception('验证超时')
-            raise Exception('未通过验证')
+                return browser.user_agent, browser.cookies()
+            self.solve_challenge(target_images, timeout, x_offset, y_offset)
+            start_time = time.time()
+            while True:
+                if not self.need_verify(browser):
+                    return browser.user_agent, browser.cookies()
+                if time.time() - start_time > 10:
+                    raise Exception('验证超时')
         finally:
-            # browser.screencast.stop()
             browser.quit()
 
-def format_cookie(driver_cookie):
-    requests_cookie = ''
-    for dict in driver_cookie:
-        requests_cookie += f'{dict["name"]}={dict["value"]}; '
-    return requests_cookie
 
 if __name__ == '__main__':
     # 使用示例
-    bypass = CrossPlatformBypass()
+    bypass = DrissionPageBypass()
     start_time = time.time()
     url = 'https://gmgn.ai/api/v1/gas_price/sol'
     target_images = [
@@ -164,14 +157,15 @@ if __name__ == '__main__':
     try:
         user_agent, cookies = bypass.get_cookies(url, None, target_images, 60, 10, 10)
         logging.warning(f"获取Cookie成功")
-
-        cookie = format_cookie(cookies)
-        logging.warning(f"User-Agent: {user_agent}, cookies: {cookie}")
+        logging.warning(f"User-Agent: {user_agent}, cookies: {cookies.as_str()}")
         resp = requests.get(url, headers={
             'user-agent': user_agent,
-            'cookie': cookie,
+            'cookie': cookies.as_str(),
         })
-        logging.warning(f"响应: {resp.text}")
+        if 'Just a moment' in resp.text:
+            logging.warning(f"验证失败")
+        else:
+            logging.warning(f"验证成功: {resp.text}")
     except Exception as e:
         logging.error(f"获取Cookie失败: {str(e)}")
     finally:

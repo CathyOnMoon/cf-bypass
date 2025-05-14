@@ -1,19 +1,19 @@
 import logging
 import os
 import sys
-
 import cv2
 import time
 import numpy as np
 import pyautogui
 import requests
 from playwright.sync_api import sync_playwright, ProxySettings
-
+from patchright.sync_api import Error as PlaywrightError
+from core.CloudflareSolver import ChallengePlatform, CloudflareSolver
 from image import image_search
 
 
 class PlaywrightBypass:
-    def solve_challenge(self, target_images: list[str] | str, timeout=60, x_offset=0, y_offset=0):
+    def auto_click(self, target_images: list[str] | str, timeout=60, x_offset=0, y_offset=0):
         start_time = time.time()
 
         while True:
@@ -92,7 +92,8 @@ class PlaywrightBypass:
                 return path
         return None
 
-    def get_cookies(self, target_url, proxy: ProxySettings | None, target_images: list[str] | str, timeout=60, x_offset=0,
+    def get_cookies(self, target_url, proxy: ProxySettings | None, target_images: list[str] | str, timeout=60,
+                    x_offset=0,
                     y_offset=0):
         with sync_playwright() as p:
             browser = p.chromium.launch(
@@ -100,7 +101,7 @@ class PlaywrightBypass:
                 proxy=proxy,
                 headless=False,
                 args=[
-                    "-disable-blink-features=AutomationControlled",  # 隐藏自动化标识
+                    "--disable-blink-features=AutomationControlled",  # 隐藏自动化标识
                     "-no-first-run",
                     "-force-color-profile=srgb",
                     "-metrics-recording-only",
@@ -109,6 +110,8 @@ class PlaywrightBypass:
                     "-export-tagged-pdf",
                     "-no-default-browser-check",
                     "-disable-background-mode",
+                    "--disable-dev-shm-usage",
+                    "--disable-extensions",
                     "-enable-features=NetworkService,NetworkServiceInProcess,LoadCryptoTokenExtension,PermuteTLSExtensions",
                     "-disable-features=FlashDeprecationWarning,EnablePasswordsAccountStorage",
                     "-deny-permission-prompts",
@@ -121,6 +124,8 @@ class PlaywrightBypass:
             # )
             # 创建新页面并跳转
             page = browser.new_page()
+            # stealth_sync(page)
+            page.add_init_script("delete navigator.__proto__.webdriver;")
             page.context.clear_cookies()
             page.goto(target_url, timeout=60000)
             page.wait_for_load_state("load")
@@ -128,7 +133,7 @@ class PlaywrightBypass:
             try:
                 if not self.need_verify(page.title()):
                     return user_agent, page.context.cookies()
-                self.solve_challenge(target_images, timeout, x_offset, y_offset)
+                self.auto_click(target_images, timeout, x_offset, y_offset)
                 start_time = time.time()
                 while True:
                     if page.is_closed():
@@ -151,9 +156,64 @@ class PlaywrightBypass:
             finally:
                 page.close()
 
+    def resolve(self, target_url, proxy: str | None, target_images: list[str] | str, timeout=60, x_offset=0,
+                y_offset=0):
+        challenge_messages = {
+            ChallengePlatform.JAVASCRIPT: "Solving Cloudflare challenge [JavaScript]...",
+            ChallengePlatform.MANAGED: "Solving Cloudflare challenge [Managed]...",
+            ChallengePlatform.INTERACTIVE: "Solving Cloudflare challenge [Interactive]...",
+        }
+        with CloudflareSolver(
+            user_agent=None,
+            timeout=30,
+            http2=True,
+            http3=True,
+            headless=False,
+            proxy=proxy,
+        ) as solver:
+            logging.info("Going to %s...", target_url)
+            try:
+                solver.page.goto(target_url)
+            except PlaywrightError as err:
+                raise Exception(f"Failed to load page: {err}")
+
+            all_cookies = solver.cookies
+            clearance_cookie = solver.extract_clearance_cookie(all_cookies)
+
+            if clearance_cookie is None:
+                challenge_platform = solver.detect_challenge()
+
+                if challenge_platform is None:
+                    raise Exception("No Cloudflare challenge detected.")
+
+                logging.warning(challenge_messages[challenge_platform])
+
+                try:
+                    solver.solve_challenge()
+                except PlaywrightError as err:
+                    logging.error(err)
+
+                self.auto_click(target_images, timeout, x_offset, y_offset)
+
+                start_time = time.time()
+                while True:
+                    try:
+                        if solver.detect_challenge() is None:
+                            user_agent = solver.get_user_agent()
+                            all_cookies = solver.cookies
+                            clearance_cookie = solver.extract_clearance_cookie(all_cookies)
+                            if clearance_cookie is None:
+                                raise Exception('Failed to retrieve a Cloudflare clearance cookie.')
+                            return user_agent, all_cookies
+                    except Exception as e:
+                        logging.error(e)
+                    if time.time() - start_time > 10:
+                        raise Exception('验证超时')
+                    solver.page.wait_for_timeout(500)
+            return solver.get_user_agent(), all_cookies
+
 
 if __name__ == '__main__':
-    # 使用示例
     bypass = PlaywrightBypass()
     start_time = time.time()
     url = 'https://gmgn.ai/api/v1/gas_price/sol'
@@ -164,21 +224,22 @@ if __name__ == '__main__':
         'img/zh-light.png',
         'img/en-light.png'
     ]
+    logging.basicConfig(
+        format="[%(asctime)s] [%(levelname)s] %(message)s",
+        datefmt="%H:%M:%S",
+        level=logging.INFO,
+    )
     try:
         proxy_host = 'superproxy.zenrows.com:1337'
         proxy_username = '7Mh7Hyrdx3Hb'
         proxy_password = 'D6D7EKLnhe6gC6T_ttl-1m_session-gtgegwhr5u46'
-        proxy = ProxySettings({
-            "server": f"http://{proxy_host}",  # 代理地址和端口
-            "username": proxy_username,
-            "password": proxy_password
-        })
-        user_agent, cookies = bypass.get_cookies(url, proxy, target_images, 60, 12, 15)
+        proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
+        user_agent, cookies = bypass.resolve(url, proxy, target_images, 60, 12, 15)
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
-        logging.warning(f"cookie: {cookie_str}, user_agent: {user_agent}")
+        logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}")
         proxies = {
-            "http": f"http://{proxy_username}:{proxy_password}@{proxy_host}",
-            "https": f"http://{proxy_username}:{proxy_password}@{proxy_host}",
+            "http": proxy,
+            "https": proxy,
         }
         resp = requests.get(url, proxies=proxies, headers={
             'user-agent': user_agent,

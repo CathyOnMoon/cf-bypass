@@ -6,7 +6,7 @@ import aiohttp
 import requests
 from DrissionPage._functions.cookies import CookiesList
 
-from core.bypass import CrossPlatformBypass
+from core.DrissionPageBypass import DrissionPageBypass
 
 
 class ProxyCookie:
@@ -20,7 +20,7 @@ class CookiePool:
     def __init__(self):
         self.host = 'https://gmgn.ai/api/v1/gas_price/sol'
         self.cookies: dict[str, ProxyCookie] = {}
-        self.bypass = CrossPlatformBypass()
+        self.bypass = DrissionPageBypass()
         asyncio.create_task(self.task_service())
         logging.info('cookie池已启动')
 
