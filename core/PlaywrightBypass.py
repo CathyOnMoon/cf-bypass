@@ -163,8 +163,9 @@ class PlaywrightBypass:
             ChallengePlatform.MANAGED: "Solving Cloudflare challenge [Managed]...",
             ChallengePlatform.INTERACTIVE: "Solving Cloudflare challenge [Interactive]...",
         }
+        ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
         with CloudflareSolver(
-            user_agent=None,
+            user_agent=ua,
             timeout=30,
             http2=False,
             http3=False,
