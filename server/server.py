@@ -17,7 +17,6 @@ class HttpServer:
         host = '0.0.0.0'
         port = 7963
         asyncio.create_task(self.start_server(host, port))
-        logging.warning(f"http服务已启动：{host}:{port}")
 
     async def start_server(self, host='0.0.0.0', port=7963):
         app = web.Application()
@@ -26,8 +25,15 @@ class HttpServer:
         await runner.setup()
         site = web.TCPSite(runner, host, port)
         await site.start()
-        await self.shutdown_event.wait()
-        logging.warning("http服务已关闭")
+        logging.warning(f"http服务已启动：{host}:{port}")
+        try:
+            await self.shutdown_event.wait()
+        finally:
+            # 正确关闭服务器和清理资源
+            await site.stop()
+            await runner.cleanup()
+            await app.cleanup()
+            logging.warning("HTTP服务已关闭")
 
     async def fetch(self, request: web.Request):
         url = request.query.get('url')

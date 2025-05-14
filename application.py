@@ -17,13 +17,15 @@ class Application:
         http_server = HttpServer(shutdown_event)
         http_server.run()
 
-        def signal_handler(sig, frame):
-            logging.warning(f"接收到信号 {sig}, 正在退出...")
+        loop = asyncio.get_running_loop()
+
+        def signal_handler():
+            logging.warning("接收到退出信号，正在关闭...")
             shutdown_event.set()
 
-        signal.signal(signal.SIGINT, signal_handler)
-        signal.signal(signal.SIGTERM, signal_handler)
+        # 使用异步信号处理
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, signal_handler)
 
-        # 等待关闭事件
         await shutdown_event.wait()
         logging.warning("程序已退出")
