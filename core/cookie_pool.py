@@ -78,11 +78,11 @@ class CookiePool:
         characters = string.ascii_letters
         return ''.join(random.choice(characters) for _ in range(length))
 
-    def random_cookie(self):
+    def random_cookie(self) -> ProxyCookie | None:
         if len(self.cookie_list) == 0:
             return None
-        random_value = random.choice(self.cookie_list)
-        return random_value
+        proxy_cookie: ProxyCookie = random.choice(self.cookie_list)
+        return proxy_cookie
 
     def remove_cookie(self, cookie: ProxyCookie):
         if cookie in self.cookie_list:

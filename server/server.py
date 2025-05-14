@@ -41,23 +41,24 @@ class HttpServer:
         try:
             max_retries = 3
             for retry in range(max_retries):
-                cookie = self.cookie_pool.random_cookie()
-                if not cookie:
+                proxy_cookie = self.cookie_pool.random_cookie()
+                if not proxy_cookie:
                     return web.json_response({
                         'code': 500,
                         'message': 'no cookies'
                     })
-                proxy = f"http://{cookie.proxy}"
+
+                proxy = f"http://{proxy_cookie.proxy}"
                 headers = {
-                    'User-Agent': cookie.user_agent,
-                    'cookie': cookie.cookies.as_str(),
+                    'User-Agent': proxy_cookie.user_agent,
+                    'cookie': proxy_cookie.cookies.as_str(),
                 }
                 async with aiohttp.ClientSession() as session:
                     async with session.get(unquote(url), headers=headers, proxy=proxy) as resp:
                         if resp.status == 200:
                             resp_content = await resp.text()
                             if 'Just a moment' in resp.text:
-                                self.cookie_pool.remove_cookie(cookie)
+                                self.cookie_pool.remove_cookie(proxy_cookie)
                                 continue
                             return web.Response(text=resp_content, headers=resp.headers)
             raise Exception("Failed to bypass Cloudflare protection after maximum retries")
