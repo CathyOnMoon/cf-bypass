@@ -166,8 +166,8 @@ class PlaywrightBypass:
         with CloudflareSolver(
             user_agent=None,
             timeout=30,
-            http2=True,
-            http3=True,
+            http2=False,
+            http3=False,
             headless=False,
             proxy=proxy,
         ) as solver:
@@ -234,7 +234,9 @@ if __name__ == '__main__':
         proxy_username = '7Mh7Hyrdx3Hb'
         proxy_password = 'D6D7EKLnhe6gC6T'
         proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
+
         user_agent, cookies = bypass.resolve(url, proxy, target_images, 60, 12, 15)
+
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
         logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}")
         proxies = {

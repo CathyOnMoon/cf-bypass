@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import logging
 import re
 import urllib.parse as urlparse
 from enum import Enum
@@ -57,6 +59,7 @@ class CloudflareSolver:
 
         if proxy is not None:
             proxy = self._parse_proxy(proxy)
+            logging.info(f"Using proxy: {proxy}")
 
         browser = self._playwright.chromium.launch(
             args=args, headless=headless, proxy=proxy
