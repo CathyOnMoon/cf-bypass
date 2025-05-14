@@ -232,7 +232,7 @@ if __name__ == '__main__':
     try:
         proxy_host = 'superproxy.zenrows.com:1337'
         proxy_username = '7Mh7Hyrdx3Hb'
-        proxy_password = 'D6D7EKLnhe6gC6T_ttl-1m_session-gtgegwhr5u46'
+        proxy_password = 'D6D7EKLnhe6gC6T'
         proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
         user_agent, cookies = bypass.resolve(url, proxy, target_images, 60, 12, 15)
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
