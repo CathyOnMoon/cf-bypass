@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import logging
+import os
 import re
+import sys
 import urllib.parse as urlparse
 from enum import Enum
 from typing import Any, Dict, Final, Iterable, List, Optional
@@ -49,7 +51,21 @@ class CloudflareSolver:
             proxy: Optional[str],
     ) -> None:
         self._playwright = sync_playwright().start()
-        args: List[str] = []
+        args: List[str] = [
+            "-no-first-run",
+            "-no-sandbox",
+            "-force-color-profile=srgb",
+            "-metrics-recording-only",
+            "-password-store=basic",
+            "-use-mock-keychain",
+            "-export-tagged-pdf",
+            "-no-default-browser-check",
+            "-disable-background-mode",
+            "-enable-features=NetworkService,NetworkServiceInProcess,LoadCryptoTokenExtension,PermuteTLSExtensions",
+            "-disable-features=FlashDeprecationWarning,EnablePasswordsAccountStorage",
+            "-deny-permission-prompts",
+            "-disable-gpu",
+        ]
 
         if not http2:
             args.append("--disable-http2")
@@ -61,8 +77,10 @@ class CloudflareSolver:
             proxy = self._parse_proxy(proxy)
             logging.info(f"Using proxy: {proxy}")
 
+        executable_path = self._get_chrome_path()
+
         browser = self._playwright.chromium.launch(
-            args=args, headless=headless, proxy=proxy
+            args=args, headless=headless, proxy=proxy, executable_path=executable_path
         )
 
         context = browser.new_context(user_agent=user_agent)
@@ -76,6 +94,23 @@ class CloudflareSolver:
 
     def __exit__(self, *_: Any) -> None:
         self._playwright.stop()
+
+    def _get_chrome_path(self):
+        paths = {
+            'win32': [
+                r'C:\Program Files\Google\Chrome\Application\chrome.exe',
+                r'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe'
+            ],
+            'linux': [
+                '/usr/bin/google-chrome',
+                '/usr/bin/chromium',
+                '/usr/bin/chromium-browser'
+            ]
+        }
+        for path in paths.get(sys.platform, []):
+            if os.path.exists(path):
+                return path
+        return None
 
     @staticmethod
     def _parse_proxy(proxy: str) -> Dict[str, str]:
