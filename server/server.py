@@ -48,13 +48,12 @@ class HttpServer:
                         'message': 'no cookies'
                     })
                 cookie = '; '.join([f'{c["name"]}={c["value"]}' for c in proxy_cookie.cookies])
-                proxy = f"http://{proxy_cookie.proxy}"
                 headers = {
                     'User-Agent': proxy_cookie.user_agent,
                     'cookie': cookie,
                 }
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(url, headers=headers, proxy=proxy) as resp:
+                    async with session.get(url, headers=headers, proxy=proxy_cookie.proxy) as resp:
                         if resp.status == 200:
                             resp_content = await resp.text()
                             if 'Just a moment' in resp_content:
