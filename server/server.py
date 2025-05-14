@@ -36,8 +36,8 @@ class HttpServer:
                 'code': 400,
                 'message': 'url参数错误'
             })
-
-
+        url = unquote(url)
+        logging.info(f'fetch url: {url}')
         try:
             max_retries = 3
             for retry in range(max_retries):
@@ -54,7 +54,7 @@ class HttpServer:
                     'cookie': cookie,
                 }
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(unquote(url), headers=headers, proxy=proxy) as resp:
+                    async with session.get(url, headers=headers, proxy=proxy) as resp:
                         if resp.status == 200:
                             resp_content = await resp.text()
                             if 'Just a moment' in resp.text:
