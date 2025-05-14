@@ -40,6 +40,7 @@ class DrissionPageBypass:
 
         args = [
             "-no-first-run",
+            "--no-sandbox",
             "-force-color-profile=srgb",
             "-metrics-recording-only",
             "-password-store=basic",
