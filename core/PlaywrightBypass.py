@@ -202,8 +202,8 @@ class PlaywrightBypass:
                             user_agent = solver.get_user_agent()
                             all_cookies = solver.cookies
                             clearance_cookie = solver.extract_clearance_cookie(all_cookies)
-                            if clearance_cookie is None:
-                                raise Exception('Failed to retrieve a Cloudflare clearance cookie.')
+                            # if clearance_cookie is None:
+                            #     raise Exception('Failed to retrieve a Cloudflare clearance cookie.')
                             return user_agent, all_cookies
                     except Exception as e:
                         logging.error(e)
