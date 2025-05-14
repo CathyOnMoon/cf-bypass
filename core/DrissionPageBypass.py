@@ -8,7 +8,7 @@ import numpy as np
 import pyautogui
 import requests
 from DrissionPage import ChromiumPage, ChromiumOptions
-from image import image_search
+from core.image import image_search
 
 
 class DrissionPageBypass:
