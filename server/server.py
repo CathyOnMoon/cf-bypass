@@ -59,7 +59,7 @@ class HttpServer:
                         if 'Just a moment' in resp_content:
                             self.cookie_pool.remove_cookie(proxy_cookie)
                             continue
-                        return web.Response(text=resp_content, headers=resp.headers)
+                        return web.Response(text=resp_content)
             raise Exception("Failed to bypass Cloudflare protection after maximum retries")
         except Exception as e:
             return web.json_response({
