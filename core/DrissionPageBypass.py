@@ -34,13 +34,13 @@ class DrissionPageBypass:
 
         # 设置代理
         if proxy is not None:
-            proxy_url = f'http://{proxy}'
+            proxy_url = f'{proxy}'
             options.set_argument(f'--proxy-server={proxy_url}')
             logging.warning(f'使用代理：{proxy_url}')
 
         args = [
             "-no-first-run",
-            "--no-sandbox",
+            "-no-sandbox",
             "-force-color-profile=srgb",
             "-metrics-recording-only",
             "-password-store=basic",
