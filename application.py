@@ -6,6 +6,12 @@ from server.server import HttpServer
 
 class Application:
     async def run(self):
+        logging.basicConfig(
+            format="[%(asctime)s] [%(levelname)s] %(message)s",
+            datefmt="%H:%M:%S",
+            level=logging.INFO,
+        )
+
         shutdown_event = asyncio.Event()
 
         http_server = HttpServer(shutdown_event)

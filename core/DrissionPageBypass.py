@@ -140,7 +140,9 @@ class DrissionPageBypass:
                 if time.time() - start_time > 10:
                     raise Exception('验证超时')
         finally:
-            browser.quit()
+            logging.info('关闭浏览器')
+            # browser.quit()
+
 
 
 if __name__ == '__main__':

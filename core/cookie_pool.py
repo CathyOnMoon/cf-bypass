@@ -42,7 +42,7 @@ class CookiePool:
             logging.warning('cookie池已关闭')
 
     async def task(self):
-        proxies = await self.fetch_proxies(quantity=10)
+        proxies = await self.fetch_proxies(quantity=1)
         if not proxies:
             logging.warning('没有可用的代理')
             return
@@ -77,8 +77,8 @@ class CookiePool:
             'session_ttl': session_ttl
         }
         auth = aiohttp.BasicAuth(
-            login='9c8787b9721426b1c2f0',
-            password='922d1b4d1df80825'
+            login='c97ce667b09c142c8046',
+            password='8e001579123d3585'
         )
         # resp = requests.get(proxy_api, params=params, auth=auth)
         async with aiohttp.ClientSession() as session:
