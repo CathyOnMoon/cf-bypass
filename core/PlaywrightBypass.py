@@ -189,10 +189,10 @@ class PlaywrightBypass:
 
                 logging.warning(challenge_messages[challenge_platform])
 
-                try:
-                    solver.solve_challenge()
-                except PlaywrightError as err:
-                    logging.error(err)
+                # try:
+                #     solver.solve_challenge()
+                # except PlaywrightError as err:
+                #     logging.error(err)
 
                 self.auto_click(target_images, timeout, x_offset, y_offset)
 
@@ -233,7 +233,7 @@ if __name__ == '__main__':
     try:
         proxy_host = 'superproxy.zenrows.com:1337'
         proxy_username = '7Mh7Hyrdx3Hb'
-        proxy_password = 'D6D7EKLnhe6gC6T_ttl-1m_session-nVCTCPjblbgE'
+        proxy_password = 'D6D7EKLnhe6gC6T_ttl-30m_session-nVCTCPjblbgE'
         proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
 
         user_agent, cookies = bypass.resolve(url, proxy, target_images, 60, 12, 15)
