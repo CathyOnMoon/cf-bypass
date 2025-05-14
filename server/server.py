@@ -3,7 +3,6 @@ import logging
 from urllib.parse import unquote
 
 import aiohttp
-import requests
 from aiohttp import web
 
 from core.cookie_pool import CookiePool
