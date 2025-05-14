@@ -57,7 +57,7 @@ class HttpServer:
                     async with session.get(url, headers=headers, proxy=proxy) as resp:
                         if resp.status == 200:
                             resp_content = await resp.text()
-                            if 'Just a moment' in resp.text:
+                            if 'Just a moment' in resp_content:
                                 self.cookie_pool.remove_cookie(proxy_cookie)
                                 continue
                             return web.Response(text=resp_content, headers=resp.headers)
