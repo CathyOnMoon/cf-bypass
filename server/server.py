@@ -61,7 +61,7 @@ class HttpServer:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url, headers=headers, proxy=proxy_cookie.proxy, timeout=aiohttp.ClientTimeout(total=30)) as resp:
                         resp_content = await resp.text()
-                        logging.info(f'resp_content: {resp_content}')
+                        # logging.info(f'resp_content: {resp_content}')
                         if 'Just a moment' in resp_content:
                             self.cookie_pool.remove_cookie(proxy_cookie)
                             continue
