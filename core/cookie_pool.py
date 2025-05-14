@@ -57,7 +57,7 @@ class CookiePool:
                 )
                 self.cookie_list.append(ProxyCookie(proxy, user_agent, cookies))
                 logging.info(f"获取Cookie成功")
-                logging.info(f"User-Agent: {user_agent}, cookies: {cookies}")
+                # logging.info(f"User-Agent: {user_agent}, cookies: {cookies}")
                 logging.info(f'当前cookie池大小：{len(self.cookie_list)}')
             except Exception as e:
                 logging.error(f"获取Cookie失败: {str(e)}")
