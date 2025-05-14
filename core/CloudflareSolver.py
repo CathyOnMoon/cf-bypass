@@ -52,19 +52,19 @@ class CloudflareSolver:
     ) -> None:
         self._playwright = sync_playwright().start()
         args: List[str] = [
-            "-no-first-run",
-            "-no-sandbox",
-            "-force-color-profile=srgb",
-            "-metrics-recording-only",
-            "-password-store=basic",
-            "-use-mock-keychain",
-            "-export-tagged-pdf",
-            "-no-default-browser-check",
-            "-disable-background-mode",
-            "-enable-features=NetworkService,NetworkServiceInProcess,LoadCryptoTokenExtension,PermuteTLSExtensions",
-            "-disable-features=FlashDeprecationWarning,EnablePasswordsAccountStorage",
-            "-deny-permission-prompts",
-            "-disable-gpu",
+            # "-no-first-run",
+            # "-no-sandbox",
+            # "-force-color-profile=srgb",
+            # "-metrics-recording-only",
+            # "-password-store=basic",
+            # "-use-mock-keychain",
+            # "-export-tagged-pdf",
+            # "-no-default-browser-check",
+            # "-disable-background-mode",
+            # "-enable-features=NetworkService,NetworkServiceInProcess,LoadCryptoTokenExtension,PermuteTLSExtensions",
+            # "-disable-features=FlashDeprecationWarning,EnablePasswordsAccountStorage",
+            # "-deny-permission-prompts",
+            # "-disable-gpu",
         ]
 
         if not http2:
@@ -80,7 +80,7 @@ class CloudflareSolver:
         executable_path = self._get_chrome_path()
 
         browser = self._playwright.chromium.launch(
-            args=args, headless=headless, proxy=proxy, executable_path=executable_path
+            args=args, headless=headless, proxy=proxy
         )
 
         context = browser.new_context(user_agent=user_agent)
