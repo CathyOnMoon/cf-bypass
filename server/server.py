@@ -37,29 +37,31 @@ class HttpServer:
                 'code': 400,
                 'message': 'url参数错误'
             })
-        cookie = self.cookie_pool.random_cookie()
-        if not cookie:
-            return web.json_response({
-                'code': 500,
-                'message': '获取cookie失败'
-            })
-        proxy = f"http://{cookie.proxy}"
-        headers = {
-            'User-Agent': cookie.user_agent,
-            'cookie': cookie.cookies.as_str(),
-        }
+
+
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(unquote(url), headers=headers, proxy=proxy) as resp:
-                    try:
-                        json_resp = await resp.json()
-                        return web.json_response(json_resp)
-                    except Exception as e:
-                        return web.json_response({
-                            'code': 500,
-                            'message': str(e),
-                            'resp': await resp.text()
-                        }, status=500)
+            max_retries = 3
+            for retry in range(max_retries):
+                cookie = self.cookie_pool.random_cookie()
+                if not cookie:
+                    return web.json_response({
+                        'code': 500,
+                        'message': 'no cookies'
+                    })
+                proxy = f"http://{cookie.proxy}"
+                headers = {
+                    'User-Agent': cookie.user_agent,
+                    'cookie': cookie.cookies.as_str(),
+                }
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(unquote(url), headers=headers, proxy=proxy) as resp:
+                        if resp.status == 200:
+                            resp_content = await resp.text()
+                            if 'Just a moment' in resp.text:
+                                self.cookie_pool.remove_cookie(cookie)
+                                continue
+                            return web.Response(text=resp_content, headers=resp.headers)
+            raise Exception("Failed to bypass Cloudflare protection after maximum retries")
         except Exception as e:
             return web.json_response({
                 'code': 500,

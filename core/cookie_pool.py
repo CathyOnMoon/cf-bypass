@@ -1,12 +1,11 @@
 import asyncio
 import logging
 import random
+import string
+from typing import List
 
-import aiohttp
-import requests
 from DrissionPage._functions.cookies import CookiesList
-
-from core.DrissionPageBypass import DrissionPageBypass
+from core.PlaywrightBypass import PlaywrightBypass
 
 
 class ProxyCookie:
@@ -19,33 +18,28 @@ class ProxyCookie:
 class CookiePool:
     def __init__(self):
         self.host = 'https://gmgn.ai/api/v1/gas_price/sol'
-        self.cookies: dict[str, ProxyCookie] = {}
-        self.bypass = DrissionPageBypass()
-        asyncio.create_task(self.task_service())
+        self.cookie_list: List[ProxyCookie] = []
+        self.bypass = PlaywrightBypass()
+        self.running = False
+        asyncio.create_task(self.task())
         logging.info('cookie池已启动')
 
-    def random_cookie(self):
-        if not self.cookies:
-            return None
-        random_key = random.choice(list(self.cookies.keys()))
-        random_value = self.cookies[random_key]
-        return random_value
-
-    async def task_service(self):
+    async def task(self):
         try:
             while True:
-                start_time = asyncio.get_event_loop().time()
-                await self.task()
-                elapsed = asyncio.get_event_loop().time() - start_time
-                await asyncio.sleep(max(60 * 30 - elapsed, 0))  # 确保固定间隔
+                if not self.running:
+                    await self.task()
+                await asyncio.sleep(60)
         except asyncio.CancelledError:
             logging.warning('cookie池已关闭')
 
-    async def task(self):
-        proxies = await self.fetch_proxies(quantity=1)
-        if not proxies:
-            logging.warning('没有可用的代理')
+    async def generate_cookies(self):
+        max_cookie_number = 10
+        if len(self.cookie_list) >= max_cookie_number:
             return
+        self.running = True
+        quantity = max_cookie_number - len(self.cookie_list)
+        proxies = self.generate_proxies(quantity=quantity)
         target_images = [
             'core/img/zh.png',
             'core/img/zh-cn.jpg',
@@ -58,46 +52,38 @@ class CookiePool:
                 loop = asyncio.get_event_loop()
                 user_agent, cookies = await loop.run_in_executor(
                     None,  # 使用默认线程池
-                    lambda: self.bypass.get_cookies(self.host, proxy, target_images, 60, 10, 10)
+                    lambda: self.bypass.resolve(self.host, proxy, target_images, 60, 10, 10)
                 )
-                # user_agent, cookies = self.bypass.get_cookies(self.host, proxy, target_images, 60, 10, 10)
-                logging.warning(f"获取Cookie成功")
-                logging.warning(f"User-Agent: {user_agent}, cookies: {cookies}")
-                self.cookies[proxy] = ProxyCookie(proxy, user_agent, cookies)
-                logging.warning(f'当前cookie池大小：{len(self.cookies)}')
+                self.cookie_list.append(ProxyCookie(proxy, user_agent, cookies))
+                logging.info(f"获取Cookie成功")
+                logging.info(f"User-Agent: {user_agent}, cookies: {cookies}")
+                logging.info(f'当前cookie池大小：{len(self.cookie_list)}')
             except Exception as e:
                 logging.error(f"获取Cookie失败: {str(e)}")
+        self.running = False
 
-    async def fetch_proxies(self, quantity: int = 10, session_ttl: int = 60):
-        proxy_api = "https://gw.dataimpulse.com:777/api/list"
-        params = {
-            'quantity': quantity,
-            'type': 'sticky',
-            'format': 'hostname:port',
-            'session_ttl': session_ttl
-        }
-        auth = aiohttp.BasicAuth(
-            login='c97ce667b09c142c8046',
-            password='8e001579123d3585'
-        )
-        # resp = requests.get(proxy_api, params=params, auth=auth)
-        async with aiohttp.ClientSession() as session:
-            async with session.get(proxy_api, params=params, auth=auth) as resp:
-                if resp.status != 200:
-                    logging.error(f"Failed to get proxy list: {await resp.text()}")
-                    return []
-                proxy_list = (await resp.text()).strip().split('\n')
-                proxies = []
-                for proxy in proxy_list:
-                    if not proxy.strip():
-                        continue
-                    parts = proxy.strip().split(':')
-                    if len(parts) != 2:
-                        logging.error(f'代理格式错误: {proxy}')
-                        continue
-                    ip, port = parts
-                    if not port.isdigit():
-                        logging.error(f'代理端口错误: {proxy}')
-                        continue
-                    proxies.append(proxy)
-                return proxies
+    def generate_proxies(self, quantity: int = 10, session_ttl: str = '30m'):
+        proxies = []
+        proxy_host = 'superproxy.zenrows.com:1337'
+        proxy_username = '7Mh7Hyrdx3Hb'
+        for i in range(quantity):
+            random_session = self.generate_random_string
+            proxy_password = f'D6D7EKLnhe6gC6T_ttl-{session_ttl}_session-{random_session}'
+            proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
+            if proxy not in proxies:
+                proxies.append(proxy)
+        return proxies
+
+    def generate_random_string(self, length=12):
+        characters = string.ascii_letters
+        return ''.join(random.choice(characters) for _ in range(length))
+
+    def random_cookie(self):
+        if len(self.cookie_list) == 0:
+            return None
+        random_value = random.choice(self.cookie_list)
+        return random_value
+
+    def remove_cookie(self, cookie: ProxyCookie):
+        if cookie in self.cookie_list:
+            self.cookie_list.remove(cookie)
