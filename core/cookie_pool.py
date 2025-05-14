@@ -67,7 +67,7 @@ class CookiePool:
         proxy_host = 'superproxy.zenrows.com:1337'
         proxy_username = '7Mh7Hyrdx3Hb'
         for i in range(quantity):
-            random_session = self.generate_random_string
+            random_session = self.generate_random_string()
             proxy_password = f'D6D7EKLnhe6gC6T_ttl-{session_ttl}_session-{random_session}'
             proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
             if proxy not in proxies:
