@@ -25,6 +25,7 @@ class HttpServer:
         await runner.setup()
         site = web.TCPSite(runner, host, port)
         await site.start()
+        logging.getLogger("aiohttp.access").setLevel(logging.WARNING)
         logging.warning(f"http服务已启动：{host}:{port}")
         try:
             await self.shutdown_event.wait()
@@ -43,7 +44,7 @@ class HttpServer:
                 'message': 'url参数错误'
             })
         url = unquote(url)
-        logging.info(f'fetch url: {url}')
+        # logging.info(f'fetch url: {url}')
         try:
             max_retries = 3
             for retry in range(max_retries):
