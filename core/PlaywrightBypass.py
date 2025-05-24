@@ -48,7 +48,7 @@ class PlaywrightBypass:
 
                     coords = image_search(cv2_screenshot, target)
                     if len(coords) > 0:
-                        logging.warning(f"找到目标图片({target_img})，坐标: {coords}")
+                        # logging.warning(f"找到目标图片({target_img})，坐标: {coords}")
 
                         x = coords[0][0] + x_offset
                         y = coords[0][1] + y_offset
@@ -156,23 +156,31 @@ class PlaywrightBypass:
             finally:
                 page.close()
 
-    def resolve(self, target_url, proxy: str | None, target_images: list[str] | str, timeout=60, x_offset=0,
-                y_offset=0):
+    def resolve(
+        self,
+        target_url,
+        proxy: str | None,
+        target_images: list[str] | str,
+        user_agent: str | None = None,
+        timeout=60,
+        x_offset=0,
+        y_offset=0
+    ):
         challenge_messages = {
             ChallengePlatform.JAVASCRIPT: "Solving Cloudflare challenge [JavaScript]...",
             ChallengePlatform.MANAGED: "Solving Cloudflare challenge [Managed]...",
             ChallengePlatform.INTERACTIVE: "Solving Cloudflare challenge [Interactive]...",
         }
-        ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
+        # ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
         with CloudflareSolver(
-            user_agent=ua,
-            timeout=30,
-            http2=False,
-            http3=False,
-            headless=False,
-            proxy=proxy,
+                user_agent=user_agent,
+                timeout=30,
+                http2=False,
+                http3=False,
+                headless=False,
+                proxy=proxy,
         ) as solver:
-            logging.info("Going to %s...", target_url)
+            # logging.info("Going to %s...", target_url)
             try:
                 solver.page.goto(target_url)
             except PlaywrightError as err:

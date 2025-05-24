@@ -1,6 +1,9 @@
 import asyncio
 import logging
 import signal
+
+from config.config import Config
+from core.cookie_pool import CookiePool
 from server.server import HttpServer
 
 
@@ -12,10 +15,25 @@ class Application:
             level=logging.INFO,
         )
 
+        config = Config()
+        config.load_config()
+
         shutdown_event = asyncio.Event()
 
-        http_server = HttpServer(shutdown_event)
-        http_server.run()
+        cookie_pool = CookiePool(
+            proxy_host=config.proxy_host,
+            proxy_username=config.proxy_username,
+            proxy_password=config.proxy_password,
+            bypass_url=config.bypass_url,
+            max_cookie_number=config.max_cookie_number,
+            resolve_timeout=config.resolve_timeout,
+            click_x_offset=config.click_x_offset,
+            click_y_offset=config.click_y_offset,
+            user_agent=config.user_agent,
+        )
+
+        http_server = HttpServer(shutdown_event, cookie_pool)
+        http_server.run(config.port)
 
         loop = asyncio.get_running_loop()
 

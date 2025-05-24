@@ -9,16 +9,15 @@ from core.cookie_pool import CookiePool
 
 
 class HttpServer:
-    def __init__(self, shutdown_event: asyncio.Event):
+    def __init__(self, shutdown_event: asyncio.Event, cookie_pool: CookiePool):
         self.shutdown_event = shutdown_event
-        self.cookie_pool = CookiePool()
+        self.cookie_pool = cookie_pool
 
-    def run(self):
+    def run(self, port: int):
         host = '0.0.0.0'
-        port = 7963
-        asyncio.create_task(self.start_server(host, port))
+        asyncio.create_task(self.start_server(port, host))
 
-    async def start_server(self, host='0.0.0.0', port=7963):
+    async def start_server(self, port: int, host='0.0.0.0'):
         app = web.Application()
         app.router.add_get('/fetch', self.fetch)
         runner = web.AppRunner(app)
@@ -44,7 +43,6 @@ class HttpServer:
                 'message': 'url参数错误'
             })
         url = unquote(url)
-        # logging.info(f'fetch url: {url}')
         try:
             max_retries = 3
             for retry in range(max_retries):
@@ -54,15 +52,13 @@ class HttpServer:
                         'code': 500,
                         'message': 'no cookies'
                     })
-                cookie = '; '.join([f'{c["name"]}={c["value"]}' for c in proxy_cookie.cookies])
                 headers = {
                     'User-Agent': proxy_cookie.user_agent,
-                    'cookie': cookie,
+                    'cookie': proxy_cookie.cookies,
                 }
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url, headers=headers, proxy=proxy_cookie.proxy, timeout=aiohttp.ClientTimeout(total=30)) as resp:
                         resp_content = await resp.text()
-                        # logging.info(f'resp_content: {resp_content}')
                         if 'Just a moment' in resp_content:
                             self.cookie_pool.remove_cookie(proxy_cookie)
                             continue
