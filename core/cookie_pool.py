@@ -93,6 +93,7 @@ class CookiePool:
             except Exception as e:
                 logging.error(f"获取Cookie失败: {str(e)}")
         self.running = False
+        self.save_to_cache()
 
     def generate_proxies(self, quantity: int = 10):
         proxies = []

@@ -20,6 +20,7 @@ class HttpServer:
     async def start_server(self, port: int, host='0.0.0.0'):
         app = web.Application()
         app.router.add_get('/fetch', self.fetch)
+        app.router.add_get('/cookies', self.cookies)
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, host, port)
@@ -70,4 +71,18 @@ class HttpServer:
                 'message': str(e)
             }, status=500)
 
+    async def cookies(self, request: web.Request):
+        try:
+            return web.json_response({
+                'code': 200,
+                'message': 'success',
+                'data': {
+                    'cookies': len(self.cookie_pool.cookie_list)
+                }
+            })
+        except Exception as e:
+            return web.json_response({
+                'code': 500,
+                'message': str(e)
+            }, status=500)
 
