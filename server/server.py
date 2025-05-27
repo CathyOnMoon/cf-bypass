@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import ssl
 from urllib.parse import unquote
 
 import aiohttp
@@ -12,6 +13,10 @@ class HttpServer:
     def __init__(self, shutdown_event: asyncio.Event, cookie_pool: CookiePool):
         self.shutdown_event = shutdown_event
         self.cookie_pool = cookie_pool
+        # 创建自定义 SSL 上下文（允许 TLS 1.0+）
+        self.ssl_ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+        self.ssl_ctx.minimum_version = ssl.TLSVersion.TLSv1  # 允许 TLS 1.0
+        self.ssl_ctx.set_ciphers("DEFAULT@SECLEVEL=1")  # 降低加密强度
 
     def run(self, port: int):
         host = '0.0.0.0'
@@ -58,7 +63,14 @@ class HttpServer:
                     'cookie': proxy_cookie.cookies,
                 }
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(url, headers=headers, proxy=proxy_cookie.proxy, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                    async with session.get(
+                        url,
+                        headers=headers,
+                        proxy=proxy_cookie.proxy,
+                        timeout=aiohttp.ClientTimeout(total=30),
+                        connector=aiohttp.TCPConnector(ssl=self.ssl_ctx),
+                        trust_env=False
+                    ) as resp:
                         resp_content = await resp.text()
                         if 'Just a moment' in resp_content:
                             self.cookie_pool.remove_cookie(proxy_cookie)
