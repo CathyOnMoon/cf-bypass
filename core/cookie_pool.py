@@ -97,7 +97,7 @@ class CookiePool:
     def generate_proxies(self, quantity: int = 10):
         proxies = []
         for i in range(quantity):
-            random_session = self.generate_random_string()
+            random_session = self.generate_random_string(length=8)
             proxy_username = self.proxy_username.format(session_id=random_session)
             proxy_password = self.proxy_password.format(session_id=random_session)
             proxy = f"https://{proxy_username}:{proxy_password}@{self.proxy_host}"

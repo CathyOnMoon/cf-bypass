@@ -166,11 +166,11 @@ class PlaywrightBypass:
         x_offset=0,
         y_offset=0
     ):
-        challenge_messages = {
-            ChallengePlatform.JAVASCRIPT: "Solving Cloudflare challenge [JavaScript]...",
-            ChallengePlatform.MANAGED: "Solving Cloudflare challenge [Managed]...",
-            ChallengePlatform.INTERACTIVE: "Solving Cloudflare challenge [Interactive]...",
-        }
+        # challenge_messages = {
+        #     ChallengePlatform.JAVASCRIPT: "Solving Cloudflare challenge [JavaScript]...",
+        #     ChallengePlatform.MANAGED: "Solving Cloudflare challenge [Managed]...",
+        #     ChallengePlatform.INTERACTIVE: "Solving Cloudflare challenge [Interactive]...",
+        # }
         # ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
         with CloudflareSolver(
                 user_agent=user_agent,
@@ -195,7 +195,7 @@ class PlaywrightBypass:
                 if challenge_platform is None:
                     raise Exception("No Cloudflare challenge detected.")
 
-                logging.warning(challenge_messages[challenge_platform])
+                # logging.warning(challenge_messages[challenge_platform])
 
                 # try:
                 #     solver.solve_challenge()

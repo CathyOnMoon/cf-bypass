@@ -75,7 +75,7 @@ class CloudflareSolver:
 
         if proxy is not None:
             proxy = self._parse_proxy(proxy)
-            # logging.info(f"Using proxy: {proxy}")
+            logging.info(f"Using proxy: {proxy}")
 
         executable_path = self._get_chrome_path()
 
