@@ -62,14 +62,15 @@ class HttpServer:
                     'User-Agent': proxy_cookie.user_agent,
                     'cookie': proxy_cookie.cookies,
                 }
-                async with aiohttp.ClientSession() as session:
+                async with aiohttp.ClientSession(
+                    connector=aiohttp.TCPConnector(ssl=self.ssl_ctx),
+                    trust_env=False
+                ) as session:
                     async with session.get(
                         url,
                         headers=headers,
                         proxy=proxy_cookie.proxy,
                         timeout=aiohttp.ClientTimeout(total=30),
-                        connector=aiohttp.TCPConnector(ssl=self.ssl_ctx),
-                        trust_env=False
                     ) as resp:
                         resp_content = await resp.text()
                         if 'Just a moment' in resp_content:
