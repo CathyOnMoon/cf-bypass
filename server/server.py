@@ -63,7 +63,7 @@ class HttpServer:
                     'cookie': proxy_cookie.cookies,
                 }
                 async with aiohttp.ClientSession(
-                    connector=aiohttp.TCPConnector(ssl=self.ssl_ctx),
+                    connector=aiohttp.TCPConnector(ssl=False),
                     trust_env=False
                 ) as session:
                     async with session.get(
