@@ -18,10 +18,10 @@ class ProxyCookie:
 class CookiePool:
     def __init__(
         self,
-        proxy_host,
-        proxy_username,
-        proxy_password,
-        bypass_url,
+        proxy_host: str,
+        proxy_username: str,
+        proxy_password: str,
+        bypass_url: str,
         max_cookie_number=10,
         resolve_timeout=60,
         click_x_offset=10,
@@ -98,8 +98,9 @@ class CookiePool:
         proxies = []
         for i in range(quantity):
             random_session = self.generate_random_string()
-            proxy_password = f'{self.proxy_password}{random_session}'
-            proxy = f"http://{self.proxy_username}:{proxy_password}@{self.proxy_host}"
+            proxy_username = self.proxy_username.format(session_id=random_session)
+            proxy_password = self.proxy_password.format(session_id=random_session)
+            proxy = f"https://{proxy_username}:{proxy_password}@{self.proxy_host}"
             if proxy not in proxies:
                 proxies.append(proxy)
         return proxies

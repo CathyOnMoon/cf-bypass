@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import signal
+import sys
 
 from config.config import Config
 from core.cookie_pool import CookiePool
@@ -41,9 +42,24 @@ class Application:
             logging.warning("接收到退出信号，正在关闭...")
             shutdown_event.set()
 
-        # 使用异步信号处理
-        for sig in (signal.SIGINT, signal.SIGTERM):
-            loop.add_signal_handler(sig, signal_handler)
+        # 跨平台信号处理（关键修改点）
+        if sys.platform != 'win32':
+            # Unix系统使用原生信号处理
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                loop.add_signal_handler(sig, signal_handler)
+        else:
+            # Windows特殊处理方案
+            def windows_signal_handler(sig):
+                signal_handler()
+                loop.call_soon_threadsafe(loop.stop)
 
-        await shutdown_event.wait()
+            # 使用低层级signal模块注册
+            signal.signal(signal.SIGINT, lambda s, f: windows_signal_handler(s))
+
+        # 统一退出逻辑
+        try:
+            await shutdown_event.wait()
+        except KeyboardInterrupt:  # 捕获Windows的Ctrl+C
+            shutdown_event.set()
+
         logging.warning("程序已退出")
