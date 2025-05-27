@@ -77,6 +77,16 @@ class HttpServer:
                             continue
                         return web.Response(text=resp_content)
             raise Exception("Failed to bypass Cloudflare protection after maximum retries")
+        except aiohttp.ClientSSLError as e:
+            return web.json_response({
+                'code': 500,
+                'message': 'ssl错误：' + str(e)
+            }, status=500)
+        except aiohttp.ClientProxyConnectionError as e:
+            return web.json_response({
+                'code': 500,
+                'message': '代理连接失败：' + str(e)
+            }, status=500)
         except Exception as e:
             return web.json_response({
                 'code': 500,
