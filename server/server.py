@@ -49,19 +49,19 @@ class HttpServer:
                 'message': 'url参数错误'
             })
         url = unquote(url)
-        try:
-            max_retries = 3
-            for retry in range(max_retries):
-                proxy_cookie = self.cookie_pool.random_cookie()
-                if not proxy_cookie:
-                    return web.json_response({
-                        'code': 500,
-                        'message': 'no cookies'
-                    })
-                headers = {
-                    'User-Agent': proxy_cookie.user_agent,
-                    'cookie': proxy_cookie.cookies,
-                }
+        max_retries = 3
+        for retry in range(max_retries):
+            proxy_cookie = self.cookie_pool.random_cookie()
+            if not proxy_cookie:
+                return web.json_response({
+                    'code': 500,
+                    'message': 'no cookies'
+                })
+            headers = {
+                'User-Agent': proxy_cookie.user_agent,
+                'cookie': proxy_cookie.cookies,
+            }
+            try:
                 async with aiohttp.ClientSession(
                     connector=aiohttp.TCPConnector(ssl=False),
                     trust_env=False
@@ -70,29 +70,26 @@ class HttpServer:
                         url,
                         headers=headers,
                         proxy=proxy_cookie.proxy,
-                        timeout=aiohttp.ClientTimeout(total=30),
+                        timeout=aiohttp.ClientTimeout(total=10),
                     ) as resp:
                         resp_content = await resp.text()
                         if 'Just a moment' in resp_content:
+                            logging.error(f"cookie已失效，移除代理cookie: {proxy_cookie.proxy}")
                             self.cookie_pool.remove_cookie(proxy_cookie)
                             continue
                         return web.Response(text=resp_content)
-            raise Exception("Failed to bypass Cloudflare protection after maximum retries")
-        except aiohttp.ClientSSLError as e:
-            return web.json_response({
-                'code': 500,
-                'message': 'ssl错误：' + str(e)
-            }, status=500)
-        except aiohttp.ClientProxyConnectionError as e:
-            return web.json_response({
-                'code': 500,
-                'message': '代理连接失败：' + str(e)
-            }, status=500)
-        except Exception as e:
-            return web.json_response({
-                'code': 500,
-                'message': str(e)
-            }, status=500)
+            except aiohttp.ClientSSLError as e:
+                logging.error(f"SSL错误：{str(e)}，移除代理cookie: {proxy_cookie.proxy}")
+                self.cookie_pool.remove_cookie(proxy_cookie)
+                continue
+            except aiohttp.ClientProxyConnectionError as e:
+                logging.error(f"代理连接失败：{str(e)}，移除代理cookie: {proxy_cookie.proxy}")
+                self.cookie_pool.remove_cookie(proxy_cookie)
+                continue
+        return web.json_response({
+            'code': 500,
+            'message': '超出最大请求次数'
+        }, status=500)
 
     async def cookies(self, request: web.Request):
         try:

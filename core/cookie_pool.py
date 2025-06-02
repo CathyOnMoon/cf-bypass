@@ -119,6 +119,8 @@ class CookiePool:
     def remove_cookie(self, cookie: ProxyCookie):
         if cookie in self.cookie_list:
             self.cookie_list.remove(cookie)
+            if not self.running:
+                self.generate_cookies()
 
     def load_from_cache(self):
         """从JSON文件加载缓存的Cookies"""
