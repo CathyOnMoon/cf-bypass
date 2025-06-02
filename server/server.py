@@ -70,7 +70,7 @@ class HttpServer:
                         url,
                         headers=headers,
                         proxy=proxy_cookie.proxy,
-                        timeout=aiohttp.ClientTimeout(total=10),
+                        timeout=aiohttp.ClientTimeout(total=30),
                     ) as resp:
                         resp_content = await resp.text()
                         if 'Just a moment' in resp_content:
@@ -87,8 +87,8 @@ class HttpServer:
                 self.cookie_pool.remove_cookie(proxy_cookie)
                 continue
             except Exception as e:
-                logging.error(f"请求失败：{str(e)}，移除代理cookie: {proxy_cookie.proxy}")
-                self.cookie_pool.remove_cookie(proxy_cookie)
+                logging.error(f"请求失败：{str(e)}")
+                # self.cookie_pool.remove_cookie(proxy_cookie)
                 continue
         return web.json_response({
             'code': 500,
