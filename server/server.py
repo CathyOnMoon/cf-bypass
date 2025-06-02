@@ -86,6 +86,10 @@ class HttpServer:
                 logging.error(f"代理连接失败：{str(e)}，移除代理cookie: {proxy_cookie.proxy}")
                 self.cookie_pool.remove_cookie(proxy_cookie)
                 continue
+            except Exception as e:
+                logging.error(f"请求失败：{str(e)}，移除代理cookie: {proxy_cookie.proxy}")
+                self.cookie_pool.remove_cookie(proxy_cookie)
+                continue
         return web.json_response({
             'code': 500,
             'message': '超出最大请求次数'
