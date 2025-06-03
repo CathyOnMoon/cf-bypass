@@ -59,7 +59,7 @@ class CookiePool:
             while True:
                 if not self.running:
                     await self.generate_cookies()
-                await asyncio.sleep(60)
+                await asyncio.sleep(10)
         except asyncio.CancelledError:
             logging.warning('cookie池已关闭')
 
