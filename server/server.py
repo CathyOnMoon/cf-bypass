@@ -74,20 +74,20 @@ class HttpServer:
                     ) as resp:
                         resp_content = await resp.text()
                         if 'Just a moment' in resp_content:
-                            logging.error(f"cookie已失效，移除代理cookie: {proxy_cookie.proxy}")
+                            # logging.error(f"cookie已失效，移除代理cookie: {proxy_cookie.proxy}")
                             self.cookie_pool.remove_cookie(proxy_cookie)
                             continue
                         return web.Response(text=resp_content)
             except aiohttp.ClientSSLError as e:
-                logging.error(f"SSL错误：{str(e)}，移除代理cookie: {proxy_cookie.proxy}")
+                # logging.error(f"SSL错误：{str(e)}，移除代理cookie: {proxy_cookie.proxy}")
                 self.cookie_pool.remove_cookie(proxy_cookie)
                 continue
             except aiohttp.ClientProxyConnectionError as e:
-                logging.error(f"代理连接失败：{str(e)}，移除代理cookie: {proxy_cookie.proxy}")
+                # logging.error(f"代理连接失败：{str(e)}，移除代理cookie: {proxy_cookie.proxy}")
                 self.cookie_pool.remove_cookie(proxy_cookie)
                 continue
             except Exception as e:
-                logging.error(f"请求失败：{str(e)}")
+                # logging.error(f"请求失败：{str(e)}")
                 # self.cookie_pool.remove_cookie(proxy_cookie)
                 continue
         return web.json_response({
