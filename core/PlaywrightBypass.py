@@ -8,8 +8,8 @@ import pyautogui
 import requests
 from playwright.sync_api import sync_playwright, ProxySettings
 from patchright.sync_api import Error as PlaywrightError
-from core.CloudflareSolver import ChallengePlatform, CloudflareSolver
-from core.image import image_search
+from CloudflareSolver import ChallengePlatform, CloudflareSolver
+from image import image_search
 
 
 class PlaywrightBypass:
