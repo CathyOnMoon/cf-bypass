@@ -6,7 +6,7 @@ import time
 import numpy as np
 import pyautogui
 import requests
-from playwright.sync_api import sync_playwright, ProxySettings
+from playwright.sync_api import sync_playwright, ProxySettings, Request
 from patchright.sync_api import Error as PlaywrightError
 from CloudflareSolver import ChallengePlatform, CloudflareSolver
 from image import image_search
@@ -157,14 +157,14 @@ class PlaywrightBypass:
                 page.close()
 
     def resolve(
-        self,
-        target_url,
-        proxy: str | None,
-        target_images: list[str] | str,
-        user_agent: str | None = None,
-        timeout=60,
-        x_offset=0,
-        y_offset=0
+            self,
+            target_url,
+            proxy: str | None,
+            target_images: list[str] | str,
+            user_agent: str | None = None,
+            timeout=60,
+            x_offset=0,
+            y_offset=0
     ):
         # challenge_messages = {
         #     ChallengePlatform.JAVASCRIPT: "Solving Cloudflare challenge [JavaScript]...",
@@ -204,25 +204,25 @@ class PlaywrightBypass:
 
                 self.auto_click(target_images, timeout, x_offset, y_offset)
 
+                request_headers = []
+
+                def capture_headers(request: Request):
+                    logging.info(f"Request headers: {request.headers}")
+                    if request.url == target_url:  # 只捕获目标URL的请求头
+                        request_headers.append(request.headers)
+
+                solver.page.on('request', capture_headers)
+
                 start_time = time.time()
                 while True:
                     try:
                         if solver.detect_challenge() is None:
-                            headers = []  # 用于存储请求头
-
-                            # 添加请求监听器
-                            def capture_headers(request):
-                                if request.url == target_url:  # 只捕获目标URL的请求头
-                                    headers.append(request.headers())
-
-                            solver.page.on('request', capture_headers)
-
                             user_agent = solver.get_user_agent()
                             all_cookies = solver.cookies
                             clearance_cookie = solver.extract_clearance_cookie(all_cookies)
                             # if clearance_cookie is None:
                             #     raise Exception('Failed to retrieve a Cloudflare clearance cookie.')
-                            return user_agent, all_cookies, headers
+                            return user_agent, all_cookies, request_headers
                     except Exception as e:
                         logging.error(e)
                     if time.time() - start_time > 10:
