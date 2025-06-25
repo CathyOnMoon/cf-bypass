@@ -204,12 +204,12 @@ class PlaywrightBypass:
 
                 self.auto_click(target_images, timeout, x_offset, y_offset)
 
-                request_headers = []
+                request_headers = {}
 
                 def capture_headers(request: Request):
                     logging.info(f"Request headers: {request.headers}")
                     if request.url == target_url:  # 只捕获目标URL的请求头
-                        request_headers.append(request.headers)
+                        request_headers = request.headers
 
                 solver.page.on('request', capture_headers)
 
@@ -262,8 +262,10 @@ if __name__ == '__main__':
             "http": proxy,
             "https": proxy,
         }
-        resp = requests.get(url, proxies=proxies, headers={
-            **headers
+
+        resp = requests.get(url, proxies=proxies, headers=headers)
+        # resp = requests.get(url, proxies=proxies, headers={
+        #     **headers
             # 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             # 'Accept-Encoding': 'gzip, deflate, br',
             # 'Accept-Language': 'en-US,en;q=0.9',
@@ -283,7 +285,7 @@ if __name__ == '__main__':
             # 'Sec-Fetch-User': '?1',
             # 'Upgrade-Insecure-Requests': '1',
             # 'User-Agent': user_agent,
-        })
+        # })
         if 'Just a moment' in resp.text:
             logging.warning(f"验证失败")
         else:
