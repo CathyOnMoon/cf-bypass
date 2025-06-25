@@ -257,16 +257,16 @@ if __name__ == '__main__':
         user_agent, cookies, headers = bypass.resolve(url, None, target_images, ua, 60, 12, 15)
 
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
-        logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}, headers: {headers}")
+        logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}")
         proxies = {
             "http": proxy,
             "https": proxy,
         }
 
         resp = requests.get(url, proxies=None, headers={
-            **headers,
-            # 'Cookie': cookie_str,
-            # 'User-Agent': user_agent
+            # **headers,
+            'Cookie': cookie_str,
+            'User-Agent': user_agent
         })
         # resp = requests.get(url, proxies=proxies, headers={
         #     **headers
