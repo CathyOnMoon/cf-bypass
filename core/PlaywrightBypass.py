@@ -244,7 +244,8 @@ if __name__ == '__main__':
         proxy_password = 'D6D7EKLnhe6gC6T_ttl-30m_session-nVCTCPjblbgE'
         proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
 
-        user_agent, cookies = bypass.resolve(url, proxy, target_images, 60, 12, 15)
+        ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
+        user_agent, cookies = bypass.resolve(url, proxy, target_images, ua, 60, 12, 15)
 
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
         logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}")
