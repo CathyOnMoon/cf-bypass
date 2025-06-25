@@ -281,7 +281,7 @@ if __name__ == '__main__':
             'Content-Type': 'application/x-www-form-urlencoded',
             'Cookie': cookie_str,
             # 'Host': headers['Host'],
-            'Origin': headers['Origin'],
+            # 'Origin': headers['Origin'],
             'Referer': headers['Referer'],
             'Sec-Ch-Ua': '"Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"',
             'Sec-Ch-Ua-Arch': '"x64"',
