@@ -227,7 +227,7 @@ class PlaywrightBypass:
                         logging.error(e)
                     if time.time() - start_time > 10:
                         raise Exception('验证超时')
-                    solver.page.wait_for_timeout(30000)
+                    solver.page.wait_for_timeout(60000)
             return solver.get_user_agent(), all_cookies
 
 
