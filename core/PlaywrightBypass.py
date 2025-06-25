@@ -6,6 +6,7 @@ import time
 import numpy as np
 import pyautogui
 import requests
+from PyQt6.QtCore import qQNaN
 from playwright.sync_api import sync_playwright, ProxySettings, Request
 from patchright.sync_api import Error as PlaywrightError
 from CloudflareSolver import ChallengePlatform, CloudflareSolver
@@ -222,7 +223,7 @@ class PlaywrightBypass:
                             clearance_cookie = solver.extract_clearance_cookie(all_cookies)
                             # if clearance_cookie is None:
                             #     raise Exception('Failed to retrieve a Cloudflare clearance cookie.')
-                            return user_agent, all_cookies, request_headers, clearance_cookie
+                            return user_agent, all_cookies, request_headers
                     except Exception as e:
                         logging.error(e)
                     if time.time() - start_time > 10:
@@ -254,7 +255,12 @@ if __name__ == '__main__':
         proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
 
         ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
-        user_agent, cookies, headers, clearance_cookie = bypass.resolve(url, None, target_images, ua, 60, 12, 15)
+        user_agent, cookies, headers = bypass.resolve(url, None, target_images, ua, 60, 12, 15)
+
+        clearance_cookie = ''
+        for cookie in cookies:
+            if cookie["name"] == "cf_clearance":
+                clearance_cookie = f'cf_clearance={cookie["value"]}'
 
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
         logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}")
@@ -265,7 +271,7 @@ if __name__ == '__main__':
 
         resp = requests.get(url, proxies=None, headers={
             # **headers,
-            'Cookie': f'{clearance_cookie.name}: {clearance_cookie.value}',
+            'Cookie': clearance_cookie,
             'User-Agent': user_agent
         })
         # resp = requests.get(url, proxies=proxies, headers={
