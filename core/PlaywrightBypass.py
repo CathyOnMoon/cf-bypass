@@ -273,6 +273,7 @@ if __name__ == '__main__':
         #     'Cookie': clearance_cookie,
         #     'User-Agent': user_agent
         # })
+        logging.info(f"headers: {headers}")
         resp = requests.get(url, proxies=proxies, headers={
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             'Accept-Encoding': 'gzip, deflate, br',
