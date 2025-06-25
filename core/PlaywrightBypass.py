@@ -6,7 +6,6 @@ import time
 import numpy as np
 import pyautogui
 import requests
-from PyQt6.QtCore import qQNaN
 from playwright.sync_api import sync_playwright, ProxySettings, Request
 from patchright.sync_api import Error as PlaywrightError
 from CloudflareSolver import ChallengePlatform, CloudflareSolver
@@ -198,10 +197,10 @@ class PlaywrightBypass:
 
                 # logging.warning(challenge_messages[challenge_platform])
 
-                # try:
-                #     solver.solve_challenge()
-                # except PlaywrightError as err:
-                #     logging.error(err)
+                try:
+                    solver.solve_challenge()
+                except PlaywrightError as err:
+                    logging.error(err)
 
                 self.auto_click(target_images, timeout, x_offset, y_offset)
 

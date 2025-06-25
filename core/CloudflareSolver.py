@@ -218,6 +218,9 @@ class CloudflareSolver:
             "Verify (I am|you are) (not a bot|(a )?human)"
         )
 
+        turnstile_frame = self._get_turnstile_frame()
+        return
+
         verify_button = self.page.get_by_role("button", name=verify_button_pattern)
         challenge_spinner = self.page.locator("#challenge-spinner")
         challenge_stage = self.page.locator("#challenge-stage")
