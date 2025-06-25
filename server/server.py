@@ -58,8 +58,24 @@ class HttpServer:
                     'message': 'no cookies'
                 })
             headers = {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                'Accept-Encoding': 'gzip, deflate, br, zstd',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Cache-Control': 'max-age=0',
+                'Cookie': proxy_cookie.cookies,
+                'Sec-Ch-Ua': '"Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"',
+                'Sec-Ch-Ua-Arch': '"x86"',
+                'Sec-Ch-Ua-Bitness': '"64"',
+                'Sec-Ch-Ua-Full-Version': '"119.0.6045.159"',
+                'Sec-Ch-Ua-Mobile': '?0',
+                'Sec-Ch-Ua-Platform': '"Linux"',
+                'Sec-Ch-Ua-Platform-Version': '"6.8.0"',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1',
+                'Upgrade-Insecure-Requests': '1',
                 'User-Agent': proxy_cookie.user_agent,
-                'cookie': proxy_cookie.cookies,
             }
             try:
                 async with aiohttp.ClientSession(
