@@ -283,7 +283,7 @@ if __name__ == '__main__':
             'Cookie': cookie_str,
             # 'Host': headers['Host'],
             # 'Origin': headers['Origin'],
-            'Referer': headers['Referer'],
+            # 'Referer': headers['Referer'],
             'Sec-Ch-Ua': '"Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"',
             'Sec-Ch-Ua-Arch': '"x64"',
             'Sec-Ch-Ua-Bitness': '"64"',
