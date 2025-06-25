@@ -207,7 +207,7 @@ class PlaywrightBypass:
                 request_headers = {}
 
                 def capture_headers(request: Request):
-                    logging.info(f"Request headers: {request.headers}")
+                    # logging.info(f"Request headers: {request.headers}")
                     if request.url == target_url:  # 只捕获目标URL的请求头
                         request_headers = request.headers
 
@@ -222,7 +222,7 @@ class PlaywrightBypass:
                             clearance_cookie = solver.extract_clearance_cookie(all_cookies)
                             # if clearance_cookie is None:
                             #     raise Exception('Failed to retrieve a Cloudflare clearance cookie.')
-                            return user_agent, all_cookies, request_headers
+                            return user_agent, all_cookies, request_headers, clearance_cookie
                     except Exception as e:
                         logging.error(e)
                     if time.time() - start_time > 10:
@@ -254,7 +254,7 @@ if __name__ == '__main__':
         proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
 
         ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
-        user_agent, cookies, headers = bypass.resolve(url, None, target_images, ua, 60, 12, 15)
+        user_agent, cookies, headers, clearance_cookie = bypass.resolve(url, None, target_images, ua, 60, 12, 15)
 
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
         logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}")
@@ -265,7 +265,7 @@ if __name__ == '__main__':
 
         resp = requests.get(url, proxies=None, headers={
             # **headers,
-            'Cookie': cookie_str,
+            'Cookie': clearance_cookie,
             'User-Agent': user_agent
         })
         # resp = requests.get(url, proxies=proxies, headers={
@@ -290,7 +290,7 @@ if __name__ == '__main__':
             # 'Upgrade-Insecure-Requests': '1',
             # 'User-Agent': user_agent,
         # })
-        if 'Just a moment' in resp.text:
+        if 'Just a moment' in resp.text or 'Cloudflare' in resp.text:
             logging.warning(f"验证失败")
         else:
             logging.warning(f"验证成功: {resp.text}")
