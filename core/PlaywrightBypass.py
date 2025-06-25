@@ -280,7 +280,7 @@ if __name__ == '__main__':
             'Cache-Control': 'max-age=0',
             'Content-Type': 'application/x-www-form-urlencoded',
             'Cookie': cookie_str,
-            'Host': headers['Host'],
+            # 'Host': headers['Host'],
             'Origin': headers['Origin'],
             'Referer': headers['Referer'],
             'Sec-Ch-Ua': '"Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"',
