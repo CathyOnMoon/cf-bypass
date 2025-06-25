@@ -265,8 +265,8 @@ if __name__ == '__main__':
 
         resp = requests.get(url, proxies=proxies, headers={
             **headers,
-            'Cookie': cookie_str,
-            'User-Agent': user_agent
+            # 'Cookie': cookie_str,
+            # 'User-Agent': user_agent
         })
         # resp = requests.get(url, proxies=proxies, headers={
         #     **headers
