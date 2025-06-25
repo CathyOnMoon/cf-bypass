@@ -256,7 +256,7 @@ if __name__ == '__main__':
         ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
         user_agent, cookies, headers, clearance_cookie = bypass.resolve(url, None, target_images, ua, 60, 12, 15)
 
-        cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
+        cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in clearance_cookie])
         logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}")
         proxies = {
             "http": proxy,
