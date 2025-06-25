@@ -208,12 +208,21 @@ class PlaywrightBypass:
                 while True:
                     try:
                         if solver.detect_challenge() is None:
+                            headers = []  # 用于存储请求头
+
+                            # 添加请求监听器
+                            def capture_headers(request):
+                                if request.url == target_url:  # 只捕获目标URL的请求头
+                                    headers.append(request.headers())
+
+                            solver.page.on('request', capture_headers)
+
                             user_agent = solver.get_user_agent()
                             all_cookies = solver.cookies
                             clearance_cookie = solver.extract_clearance_cookie(all_cookies)
                             # if clearance_cookie is None:
                             #     raise Exception('Failed to retrieve a Cloudflare clearance cookie.')
-                            return user_agent, all_cookies
+                            return user_agent, all_cookies, headers
                     except Exception as e:
                         logging.error(e)
                     if time.time() - start_time > 10:
@@ -245,33 +254,35 @@ if __name__ == '__main__':
         proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
 
         ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
-        user_agent, cookies = bypass.resolve(url, proxy, target_images, ua, 60, 12, 15)
+        user_agent, cookies, headers = bypass.resolve(url, proxy, target_images, ua, 60, 12, 15)
 
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
-        logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}")
+        logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}, headers: {headers}")
         proxies = {
             "http": proxy,
             "https": proxy,
         }
         resp = requests.get(url, proxies=proxies, headers={
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-            'Accept-Encoding': 'gzip, deflate, br, zstd',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Cache-Control': 'max-age=0',
-            'Cookie': cookie_str,
-            'Sec-Ch-Ua': '"Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"',
-            'Sec-Ch-Ua-Arch': '"x86"',
-            'Sec-Ch-Ua-Bitness': '"64"',
-            'Sec-Ch-Ua-Full-Version': '"119.0.6045.159"',
-            'Sec-Ch-Ua-Mobile': '?0',
-            'Sec-Ch-Ua-Platform': '"Linux"',
-            'Sec-Ch-Ua-Platform-Version': '"6.8.0"',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none',
-            'Sec-Fetch-User': '?1',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': user_agent,
+            **headers
+            # 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            # 'Accept-Encoding': 'gzip, deflate, br',
+            # 'Accept-Language': 'en-US,en;q=0.9',
+            # 'Cache-Control': 'max-age=0',
+            # 'Content-Type': 'application/x-www-form-urlencoded',
+            # 'Cookie': cookie_str,
+            # 'Sec-Ch-Ua': '"Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"',
+            # 'Sec-Ch-Ua-Arch': '"x86"',
+            # 'Sec-Ch-Ua-Bitness': '"64"',
+            # 'Sec-Ch-Ua-Full-Version': '"119.0.6045.159"',
+            # 'Sec-Ch-Ua-Mobile': '?0',
+            # 'Sec-Ch-Ua-Platform': '"Linux"',
+            # 'Sec-Ch-Ua-Platform-Version': '"6.8.0"',
+            # 'Sec-Fetch-Dest': 'document',
+            # 'Sec-Fetch-Mode': 'navigate',
+            # 'Sec-Fetch-Site': 'none',
+            # 'Sec-Fetch-User': '?1',
+            # 'Upgrade-Insecure-Requests': '1',
+            # 'User-Agent': user_agent,
         })
         if 'Just a moment' in resp.text:
             logging.warning(f"验证失败")
