@@ -262,7 +262,7 @@ if __name__ == '__main__':
                 clearance_cookie = f'cf_clearance={cookie["value"]}'
 
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
-        logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}")
+        logging.info(f"clearance_cookie: {clearance_cookie}, user_agent: {user_agent}")
         proxies = {
             "http": proxy,
             "https": proxy,
