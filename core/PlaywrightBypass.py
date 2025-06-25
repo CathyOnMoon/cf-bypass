@@ -288,7 +288,7 @@ if __name__ == '__main__':
             'Sec-Ch-Ua-Arch': '"x64"',
             'Sec-Ch-Ua-Bitness': '"64"',
             'Sec-Ch-Ua-Full-Version': '"119.0.6045.159"',
-            'sec-ch-ua-full-version-list': ' "Google Chrome";v="119.0.6045.159", "Chromium";v="119.0.6045.159", "Not?A_Brand";v="24.0.0.0"',
+            'sec-ch-ua-full-version-list': '"Google Chrome";v="119.0.6045.159", "Chromium";v="119.0.6045.159", "Not?A_Brand";v="24.0.0.0"',
             'Sec-Ch-Ua-Mobile': '?0',
             'Sec-Ch-Ua-Platform': '"Linux"',
             'Sec-Ch-Ua-Platform-Version': '""',
