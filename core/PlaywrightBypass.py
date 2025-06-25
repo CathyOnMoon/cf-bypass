@@ -197,10 +197,10 @@ class PlaywrightBypass:
 
                 # logging.warning(challenge_messages[challenge_platform])
 
-                # try:
-                #     solver.solve_challenge()
-                # except PlaywrightError as err:
-                #     logging.error(err)
+                try:
+                    solver.solve_challenge()
+                except PlaywrightError as err:
+                    logging.error(err)
 
                 self.auto_click(target_images, timeout, x_offset, y_offset)
 
@@ -254,7 +254,7 @@ if __name__ == '__main__':
         proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
 
         ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
-        user_agent, cookies, headers = bypass.resolve(url, proxy, target_images, ua, 60, 12, 15)
+        user_agent, cookies, headers = bypass.resolve(url, None, target_images, ua, 60, 12, 15)
 
         cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
         logging.info(f"cookie: {cookie_str}, user_agent: {user_agent}, headers: {headers}")
@@ -263,7 +263,7 @@ if __name__ == '__main__':
             "https": proxy,
         }
 
-        resp = requests.get(url, proxies=proxies, headers={
+        resp = requests.get(url, proxies=None, headers={
             **headers,
             # 'Cookie': cookie_str,
             # 'User-Agent': user_agent

@@ -83,7 +83,7 @@ class CloudflareSolver:
             args=args, headless=headless, proxy=proxy, executable_path=executable_path
         )
 
-        context = browser.new_context(user_agent=user_agent)
+        context = browser.new_context()
         context.set_default_timeout(timeout * 1000)
 
         self.page = context.new_page()
