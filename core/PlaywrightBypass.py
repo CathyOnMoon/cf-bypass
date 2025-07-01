@@ -197,10 +197,10 @@ class PlaywrightBypass:
 
                 # logging.warning(challenge_messages[challenge_platform])
 
-                try:
-                    solver.solve_challenge()
-                except PlaywrightError as err:
-                    logging.error(err)
+                # try:
+                #     solver.solve_challenge()
+                # except PlaywrightError as err:
+                #     logging.error(err)
 
                 self.auto_click(target_images, timeout, x_offset, y_offset)
 
