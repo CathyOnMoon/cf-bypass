@@ -227,7 +227,7 @@ class PlaywrightBypass:
                         logging.error(e)
                     if time.time() - start_time > 10:
                         raise Exception('验证超时')
-                    solver.page.wait_for_timeout(1000)
+                    solver.page.wait_for_timeout(1000 * 10)
             return solver.get_user_agent(), all_cookies
 
 
@@ -248,13 +248,15 @@ if __name__ == '__main__':
         level=logging.INFO,
     )
     try:
-        proxy_host = 'superproxy.zenrows.com:1337'
-        proxy_username = '7Mh7Hyrdx3Hb'
-        proxy_password = 'D6D7EKLnhe6gC6T_ttl-30m_session-nVCTCPjblbgE'
-        proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
+        # proxy_host = 'superproxy.zenrows.com:1337'
+        # proxy_username = '7Mh7Hyrdx3Hb'
+        # proxy_password = 'D6D7EKLnhe6gC6T_ttl-30m_session-nVCTCPjblbgE'
+        # proxy = f"http://{proxy_username}:{proxy_password}@{proxy_host}"
+
+        proxy = None
 
         ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
-        user_agent, cookies, headers = bypass.resolve(url, None, target_images, ua, 60, 12, 15)
+        user_agent, cookies, headers = bypass.resolve(url, proxy, target_images, ua, 60, 12, 15)
 
         clearance_cookie = ''
         for cookie in cookies:
@@ -268,38 +270,43 @@ if __name__ == '__main__':
             "https": proxy,
         }
 
-        # resp = requests.get(url, proxies=None, headers={
-        #     # **headers,
-        #     'Cookie': clearance_cookie,
-        #     'User-Agent': user_agent
-        # })
-        logging.info(f"headers: {headers}")
-        resp = requests.get(url, proxies=proxies, headers={
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Cache-Control': 'max-age=0',
-            'Content-Type': 'application/x-www-form-urlencoded',
+        resp = requests.get(url, proxies=None, headers={
             'Cookie': cookie_str,
-            # 'Host': headers['Host'],
-            # 'Origin': headers['Origin'],
-            # 'Referer': headers['Referer'],
-            'Sec-Ch-Ua': '"Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"',
-            'Sec-Ch-Ua-Arch': '"x64"',
-            'Sec-Ch-Ua-Bitness': '"64"',
-            'Sec-Ch-Ua-Full-Version': '"119.0.6045.159"',
-            'sec-ch-ua-full-version-list': '"Google Chrome";v="119.0.6045.159", "Chromium";v="119.0.6045.159", "Not?A_Brand";v="24.0.0.0"',
-            'Sec-Ch-Ua-Mobile': '?0',
-            'Sec-Ch-Ua-Platform': '"Linux"',
-            'Sec-Ch-Ua-Platform-Version': '""',
-            'sec-ch-ua-model': '""',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-User': '?1',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': user_agent,
+            'User-Agent': ua,
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Referer': 'https://gmgn.ai/',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-site'
         })
+        logging.info(f"headers: {headers}")
+        # resp = requests.get(url, proxies=proxies, headers={
+        #     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        #     'Accept-Encoding': 'gzip, deflate, br',
+        #     'Accept-Language': 'en-US,en;q=0.9',
+        #     'Cache-Control': 'max-age=0',
+        #     'Content-Type': 'application/x-www-form-urlencoded',
+        #     'Cookie': cookie_str,
+        #     # 'Host': headers['Host'],
+        #     # 'Origin': headers['Origin'],
+        #     # 'Referer': headers['Referer'],
+        #     'Sec-Ch-Ua': '"Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"',
+        #     'Sec-Ch-Ua-Arch': '"x64"',
+        #     'Sec-Ch-Ua-Bitness': '"64"',
+        #     'Sec-Ch-Ua-Full-Version': '"119.0.6045.159"',
+        #     'sec-ch-ua-full-version-list': '"Google Chrome";v="119.0.6045.159", "Chromium";v="119.0.6045.159", "Not?A_Brand";v="24.0.0.0"',
+        #     'Sec-Ch-Ua-Mobile': '?0',
+        #     'Sec-Ch-Ua-Platform': '"Linux"',
+        #     'Sec-Ch-Ua-Platform-Version': '""',
+        #     'sec-ch-ua-model': '""',
+        #     'Sec-Fetch-Dest': 'document',
+        #     'Sec-Fetch-Mode': 'navigate',
+        #     'Sec-Fetch-Site': 'same-origin',
+        #     'Sec-Fetch-User': '?1',
+        #     'Upgrade-Insecure-Requests': '1',
+        #     'User-Agent': user_agent,
+        # })
         if 'Just a moment' in resp.text or 'Cloudflare' in resp.text:
             logging.warning(f"验证失败")
         else:
